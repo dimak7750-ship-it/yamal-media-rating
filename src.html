@@ -7,6 +7,7 @@
 <link rel="icon" type="image/png" href="data:image/png;base64,__LOGO__">
 <script src="lib/xlsx.full.min.js"></script>
 <script src="lib/jszip.min.js"></script>
+<script src="parser.js"></script>
 <style>
 @font-face{font-family:Manrope;font-style:normal;font-weight:400;font-display:swap;src:url(fonts/manrope-cyrillic-400-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
 @font-face{font-family:Manrope;font-style:normal;font-weight:400;font-display:swap;src:url(fonts/manrope-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -63,6 +64,7 @@ button:disabled{opacity:.5;cursor:default}
 .msg.warn{background:var(--warn-bg);color:var(--warn-ink)}
 .msg.err{background:var(--err-bg);color:var(--err-ink)}
 .msg.info{background:var(--surface);color:var(--ink-2);border:1px solid var(--line)}
+.msg button{margin-left:8px;padding:4px 10px;font-size:13px}
 details.res{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin:0 0 18px}
 details.res summary{padding:12px 16px;cursor:pointer;font-weight:700}
 details.res .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px 24px;padding:4px 16px 16px}
@@ -97,9 +99,7 @@ footer{color:var(--muted);font-size:12.5px;margin-top:30px}
 </div></header>
 
 <main>
-  <div id="drop" class="drop" tabindex="0" role="button">
-    <b>Перетащите сюда файл еженедельного съёма (.xlsx)</b>
-    <small>или нажмите, чтобы выбрать. Файл читается прямо в браузере и никуда не отправляется.</small>
+  <div id="drop" class="drop compact" tabindex="0" role="button" hidden>
     <input id="file" type="file" accept=".xlsx,.xlsm,.xls" hidden>
   </div>
 
@@ -112,6 +112,7 @@ footer{color:var(--muted);font-size:12.5px;margin-top:30px}
       <label for="prev">сравнить с</label>
       <select id="prev"></select>
       <span class="spacer"></span>
+      <button id="previewBtn" type="button" title="Построить картинки по файлу с компьютера — на сайт он не попадёт">Предпросмотр файла…</button>
       <button id="zip" class="primary">Скачать все 9 PNG (zip)</button>
     </div>
 
@@ -140,13 +141,11 @@ const PLATFORMS = [
   {key:'МАКС',      label:'МАКС',      short:'MAX'},
   {key:'Telegram',  label:'Telegram',  short:'TG'},
 ];
-const PLATFORM_ALIASES = {'вконтакте':'ВКонтакте','вк':'ВКонтакте','telegram':'Telegram','телеграм':'Telegram','тг':'Telegram','макс':'МАКС','max':'МАКС'};
 const METRICS = [
   {key:'growth', title:'Прирост подписчиков', file:'subscribers', unit:'чел. за неделю', diverging:true},
   {key:'er',     title:'ER',                  file:'ER',         unit:'% подписчиков в день'},
   {key:'views',  title:'Просмотры',           file:'views',  unit:'за неделю'},
 ];
-const COLS = {pubs:'публикаций', views:'просмотры', likes:'лайки', subs:'подписчики', growth:'прирост подписчиков'};
 const MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 
 // цвета картинки (всегда светлая — её пересылают)
@@ -154,29 +153,18 @@ const IMG = {bg:'#ffffff', band:'#001b39', bandSub:'#8fd3f2', ink:'#0f1b2d', ink
   grid:'#e6ebf1', pos:'#0096d6', neg:'#e0662f', good:'#2e8b3e', bad:'#d03b3b', zebra:'#f6f8fb'};
 
 // ---------- состояние ----------
-const S = {weeks:[], defaultWeek:null, wbName:'', excluded:loadExcluded(), cur:null, prev:null, renders:[]};
+const S = {weeks:[], published:null, mode:'none', wbName:'', excluded:loadExcluded(), cur:null, prev:null, renders:[]};
 
 function loadExcluded(){ try{ return new Set(JSON.parse(localStorage.getItem('ym-rating-excluded')||'[]')); }catch(e){ return new Set(); } }
 function saveExcluded(){ try{ localStorage.setItem('ym-rating-excluded', JSON.stringify([...S.excluded])); }catch(e){} }
 
 // ---------- утилиты ----------
-const norm = s => String(s ?? '').replace(/\s+/g,' ').trim().toLowerCase();
-const num = v => (typeof v === 'number' && isFinite(v)) ? v : null;
 const nf0 = new Intl.NumberFormat('ru-RU',{maximumFractionDigits:0});
 const nf2 = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
 const nf1 = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1});
 const signed = (v, f) => (v > 0 ? '+' : v < 0 ? '−' : '') + f(Math.abs(v));
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
-function parseWeekLabel(text, sheetName){
-  const re = /(\d{1,2})(?:\.(\d{1,2}))?\s*[–—-]\s*(\d{1,2})\.(\d{1,2})(?:\.(\d{4}))?/;
-  const m = String(text||'').match(re) || String(sheetName||'').match(re);
-  if(!m) return null;
-  const d2 = +m[3], m2 = +m[4], y = m[5] ? +m[5] : new Date().getFullYear();
-  const d1 = +m[1], m1 = m[2] ? +m[2] : m2;
-  const y1 = m1 > m2 ? y - 1 : y;
-  return {start:new Date(y1, m1-1, d1), end:new Date(y, m2-1, d2), y};
-}
 function humanRange(w){
   const a = w.start, b = w.end;
   if(a.getMonth() === b.getMonth()) return `${a.getDate()}–${b.getDate()} ${MONTHS[b.getMonth()]} ${b.getFullYear()}`;
@@ -186,70 +174,6 @@ const pad = n => String(n).padStart(2,'0');
 const shortRange = w => w.start.getMonth()===w.end.getMonth()
   ? `${pad(w.start.getDate())}–${pad(w.end.getDate())}.${pad(w.end.getMonth()+1)}`
   : `${pad(w.start.getDate())}.${pad(w.start.getMonth()+1)}–${pad(w.end.getDate())}.${pad(w.end.getMonth()+1)}`;
-
-// ---------- чтение файла ----------
-function parseWorkbook(wb){
-  const weeks = [], errors = [], warns = [];
-  for(const name of wb.SheetNames){
-    const ws = wb.Sheets[name];
-    const rows = XLSX.utils.sheet_to_json(ws, {header:1, raw:true, defval:null, blankrows:true});
-    const title = rows[0] && rows[0][0];
-    const isWeekByName = /^\d{1,2}(\.\d{1,2})?\s*[-–]\s*\d{1,2}\.\d{1,2}$/.test(name.trim());
-    const isWeekByTitle = /съ[её]м/i.test(String(title||'')) && parseWeekLabel(title, '') != null;
-    if(!isWeekByName && !isWeekByTitle) continue;
-
-    const h = rows.findIndex(r => r && norm(r[0]) === 'площадка' && norm(r[1]) === 'ресурс');
-    if(h < 0){ errors.push(`Лист «${name}»: не найдена строка заголовков «Площадка | Ресурс».`); continue; }
-    const hdr = rows[h].map(norm);
-    const C = {}; const missing = [];
-    for(const [k, label] of Object.entries(COLS)){ C[k] = hdr.indexOf(label); if(C[k] < 0) missing.push(label); }
-    if(missing.length){ errors.push(`Лист «${name}»: нет колонок ${missing.map(x=>'«'+x+'»').join(', ')}.`); continue; }
-
-    const period = parseWeekLabel(title, name);
-    if(!period){ errors.push(`Лист «${name}»: не удалось понять даты недели.`); continue; }
-
-    const items = [], totals = {}, empty = [];
-    let currentPlatform = null;
-    for(let i = h+1; i < rows.length; i++){
-      const r = rows[i]; if(!r) continue;
-      const a = r[0] != null ? String(r[0]).trim() : '';
-      const b = r[1] != null ? String(r[1]).trim() : '';
-      if(!b) continue;
-      if(/^итого/i.test(b)){
-        const p = PLATFORM_ALIASES[norm(b.replace(/^итого\s*/i,''))];
-        if(p) totals[p] = {views:num(r[C.views]), likes:num(r[C.likes]), subs:num(r[C.subs]), growth:num(r[C.growth])};
-        continue;
-      }
-      if(a) currentPlatform = PLATFORM_ALIASES[norm(a)] || a;
-      const platform = currentPlatform;
-      if(!PLATFORMS.some(p => p.key === platform)) continue;
-      const rec = {platform, name:b, pubs:num(r[C.pubs]), views:num(r[C.views]), likes:num(r[C.likes]), subs:num(r[C.subs]), growth:num(r[C.growth])};
-      if(rec.views == null && rec.subs == null){ empty.push(`${platform} · ${b}`); continue; }
-      rec.er = (rec.likes != null && rec.subs) ? rec.likes / rec.subs / 7 * 100 : null;
-      items.push(rec);
-    }
-    // сверка с итоговыми строками листа
-    for(const p of PLATFORMS){
-      const t = totals[p.key]; if(!t) continue;
-      for(const k of ['views','likes','subs','growth']){
-        if(t[k] == null) continue;
-        const sum = items.filter(x => x.platform === p.key).reduce((s,x) => s + (x[k]||0), 0);
-        if(Math.abs(sum - t[k]) > 0.5) warns.push(`Лист «${name}», ${p.label}: сумма «${k}» по строкам (${nf0.format(sum)}) не совпадает с итогом (${nf0.format(t[k])}).`);
-      }
-    }
-    weeks.push({sheet:name, title:String(title||name), ...period, items, empty});
-  }
-  weeks.sort((a,b) => a.end - b.end);
-
-  // текущая неделя из «Сводки», B2
-  let def = null;
-  const sv = wb.SheetNames.find(n => norm(n) === 'сводка');
-  if(sv){
-    const c = wb.Sheets[sv]['B2'];
-    if(c && c.v != null) def = weeks.find(w => norm(w.sheet) === norm(c.v)) || null;
-  }
-  return {weeks, def: def || weeks[weeks.length-1] || null, errors, warns};
-}
 
 // ---------- рейтинги ----------
 function key(p, n){ return p + '|' + n; }
@@ -542,28 +466,70 @@ function prevOf(w){
   return i > 0 ? S.weeks[i-1] : null;
 }
 
+function setDrop(mode){
+  const d = $('drop'); d.hidden = false;
+  if(mode === 'big'){
+    d.classList.remove('compact');
+    d.innerHTML = '<b>Перетащите сюда файл еженедельного съёма (.xlsx)</b><small>или нажмите, чтобы выбрать. Файл читается прямо в браузере и никуда не отправляется.</small>';
+  } else {
+    d.hidden = true; d.innerHTML = '';
+  }
+  d.appendChild(fileInput);
+}
+function showWeeks(weeks, def, msgs){
+  S.weeks = weeks; S.cur = def; S.prev = prevOf(S.cur);
+  showMsgs(msgs);
+  $('app').hidden = false;
+  fillSelects(); renderResources(); renderAll();
+}
+function fmtStamp(isoStr){
+  const d = new Date(isoStr);
+  return isNaN(d) ? '' : d.toLocaleString('ru-RU', {day:'numeric', month:'long', hour:'2-digit', minute:'2-digit'});
+}
+function showPublished(){
+  const P = S.published;
+  const weeks = P.weeks.map(YMParser.fromJSON);
+  const last = weeks[weeks.length-1];
+  const msgs = [{t:'info', html:`Данные по <b>${humanRange(last)}</b> · недель в истории: ${weeks.length} · обновлено ${fmtStamp(P.updated)}`}];
+  (P.warnings || []).forEach(w => msgs.push({t:'warn', html:esc(w)}));
+  S.mode = 'published';
+  setDrop('compact');
+  showWeeks(weeks, last, msgs);
+}
+async function loadPublished(){
+  try{
+    const r = await fetch('data/weeks.json', {cache:'no-cache'});
+    if(!r.ok) throw new Error(r.status);
+    const data = await r.json();
+    if(!data.weeks || !data.weeks.length) throw new Error('empty');
+    S.published = data;
+    await ready;
+    showPublished();
+  }catch(e){
+    setDrop('big');
+  }
+}
+
 async function handleFile(file){
   showMsgs([{t:'info', html:`Читаю «${esc(file.name)}»…`}]);
   try{
     await ready;
     const buf = await file.arrayBuffer();
     const wb = XLSX.read(buf, {type:'array', cellDates:false});
-    const res = parseWorkbook(wb);
+    const res = YMParser.parseWorkbook(wb, XLSX);
     const msgs = [];
     res.errors.forEach(e => msgs.push({t:'err', html:esc(e)}));
     res.warns.forEach(e => msgs.push({t:'warn', html:esc(e)}));
     if(!res.weeks.length){
       msgs.unshift({t:'err', html:'В файле не нашлось ни одного листа недели. Ожидаются листы вида «21-27.09» с заголовками «Площадка | Ресурс | Публикаций | Просмотры | … | Подписчики | Прирост подписчиков».'});
-      showMsgs(msgs); $('app').hidden = true; return;
+      showMsgs(msgs); return;
     }
-    S.weeks = res.weeks; S.cur = res.def; S.prev = prevOf(S.cur); S.wbName = file.name;
-    msgs.unshift({t:'info', html:`Файл «${esc(file.name)}»: найдено недель — ${res.weeks.length}. Текущая — <b>${humanRange(S.cur)}</b>${S.prev ? `, сравнение с ${humanRange(S.prev)}` : ''}.`});
-    showMsgs(msgs);
-    $('drop').classList.add('compact');
-    $('drop').innerHTML = `<b>Загрузить другой файл</b><small>${esc(file.name)}</small>`;
-    $('drop').appendChild(fileInput);
-    $('app').hidden = false;
-    fillSelects(); renderResources(); renderAll();
+    S.mode = 'local'; S.wbName = file.name;
+    const back = S.published ? ' <button id="backPub" type="button">Вернуться к опубликованным данным</button>' : '';
+    msgs.unshift({t:'warn', html:`Предпросмотр файла «${esc(file.name)}» — на сайте он не сохранён. Недель в файле: ${res.weeks.length}, текущая — <b>${humanRange(res.def)}</b>.${back}`});
+    showWeeks(res.weeks, res.def, msgs);
+    const b = $('backPub'); if(b) b.onclick = showPublished;
+    setDrop('compact');
   }catch(e){
     console.error(e);
     showMsgs([{t:'err', html:'Не удалось прочитать файл: ' + esc(e.message || e)}]);
@@ -579,6 +545,7 @@ fileInput.addEventListener('change', () => { if(fileInput.files[0]) handleFile(f
 ['dragleave','drop'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); if(ev === 'drop' || e.target === drop) drop.classList.remove('over'); }));
 document.addEventListener('drop', e => { const f = e.dataTransfer?.files?.[0]; if(f) handleFile(f); });
 $('week').onchange = () => { S.cur = S.weeks[+$('week').value]; S.prev = prevOf(S.cur); syncPrev(); renderResources(); renderAll(); };
+$('previewBtn').onclick = () => fileInput.click();
 $('prev').onchange = () => { const v = +$('prev').value; S.prev = v < 0 ? null : S.weeks[v]; renderAll(); };
 $('zip').onclick = async () => { const b = $('zip'); b.disabled = true; b.textContent = 'Собираю…'; try{ await downloadZip(); } finally { b.disabled = false; b.textContent = 'Скачать все 9 PNG (zip)'; } };
 
@@ -587,6 +554,7 @@ const ready = (async () => {
   try{ await Promise.all(['800 46px Manrope','700 19px Manrope','600 20px Manrope','500 17px Manrope','600 24px Manrope'].map(f => document.fonts.load(f, 'Ямал-Медиа Ab 0123'))); }catch(e){}
   window.__ready = true;
 })();
+loadPublished();
 </script>
 </body>
 </html>
