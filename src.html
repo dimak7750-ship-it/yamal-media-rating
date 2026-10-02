@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Рейтинг пабликов Ямал-Медиа</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,__LOGO__">
+<script src="lib/xlsx.full.min.js"></script>
+<script src="lib/jszip.min.js"></script>
+<style>
+@font-face{font-family:Manrope;font-style:normal;font-weight:400;font-display:swap;src:url(fonts/manrope-cyrillic-400-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:Manrope;font-style:normal;font-weight:400;font-display:swap;src:url(fonts/manrope-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Manrope;font-style:normal;font-weight:500;font-display:swap;src:url(fonts/manrope-cyrillic-500-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:Manrope;font-style:normal;font-weight:500;font-display:swap;src:url(fonts/manrope-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Manrope;font-style:normal;font-weight:600;font-display:swap;src:url(fonts/manrope-cyrillic-600-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:Manrope;font-style:normal;font-weight:600;font-display:swap;src:url(fonts/manrope-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Manrope;font-style:normal;font-weight:700;font-display:swap;src:url(fonts/manrope-cyrillic-700-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:Manrope;font-style:normal;font-weight:700;font-display:swap;src:url(fonts/manrope-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Manrope;font-style:normal;font-weight:800;font-display:swap;src:url(fonts/manrope-cyrillic-800-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:Manrope;font-style:normal;font-weight:800;font-display:swap;src:url(fonts/manrope-latin-800-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+:root{
+  --bg:#f4f6f9; --surface:#ffffff; --ink:#0f1b2d; --ink-2:#4a5568; --muted:#7a8699;
+  --line:#e2e7ee; --brand:#001b39; --accent:#0096d6; --accent-soft:#e3f4fb;
+  --good:#2e8b3e; --bad:#d03b3b; --warn-bg:#fff6e0; --warn-ink:#7a5300; --err-bg:#fde8e8; --err-ink:#8a1c1c;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0b1420; --surface:#121e2e; --ink:#e8eef6; --ink-2:#b4c0cf; --muted:#8593a6;
+    --line:#22324a; --accent:#33b8ee; --accent-soft:#0f2c40;
+    --warn-bg:#3a2e10; --warn-ink:#f3d58a; --err-bg:#3b1717; --err-ink:#f6b3b3;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0b1420; --surface:#121e2e; --ink:#e8eef6; --ink-2:#b4c0cf; --muted:#8593a6;
+  --line:#22324a; --accent:#33b8ee; --accent-soft:#0f2c40;
+  --warn-bg:#3a2e10; --warn-ink:#f3d58a; --err-bg:#3b1717; --err-ink:#f6b3b3;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 Manrope,system-ui,-apple-system,"Segoe UI",sans-serif}
+header.top{background:var(--brand);color:#fff}
+header.top .in{max-width:1280px;margin:0 auto;padding:18px 16px;display:flex;gap:14px;align-items:center}
+header.top img{width:44px;height:44px}
+header.top h1{font-size:20px;margin:0;font-weight:800;letter-spacing:-.01em}
+header.top p{margin:0;color:#9fd8f2;font-size:13px}
+main{max-width:1280px;margin:0 auto;padding:20px 16px 60px}
+.drop{border:2px dashed var(--line);background:var(--surface);border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop b{font-size:17px}
+.drop small{display:block;color:var(--muted);margin-top:6px}
+.drop.compact{padding:12px 16px;text-align:left;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.drop.compact b{font-size:15px}
+.drop.compact small{margin:0}
+.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:16px 0}
+.bar label{color:var(--ink-2);font-size:14px}
+select,button{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 12px}
+button{cursor:pointer;font-weight:600}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button:hover{filter:brightness(1.05)}
+button:disabled{opacity:.5;cursor:default}
+.spacer{flex:1}
+.msg{border-radius:10px;padding:10px 14px;margin:12px 0;font-size:14px}
+.msg.warn{background:var(--warn-bg);color:var(--warn-ink)}
+.msg.err{background:var(--err-bg);color:var(--err-ink)}
+.msg.info{background:var(--surface);color:var(--ink-2);border:1px solid var(--line)}
+details.res{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin:0 0 18px}
+details.res summary{padding:12px 16px;cursor:pointer;font-weight:700}
+details.res .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px 24px;padding:4px 16px 16px}
+.col h4{margin:6px 0;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+.col h4 span{font-weight:500;font-size:12px;color:var(--accent);cursor:pointer}
+.col label{display:flex;gap:8px;align-items:center;font-size:14px;padding:2px 0;color:var(--ink)}
+.col label.na{color:var(--muted)}
+.platform{margin:26px 0 8px;font-size:18px;font-weight:800}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(520px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;position:relative}
+.card canvas{width:100%;height:auto;display:block;border-radius:6px;background:#fff}
+.card .act{display:flex;gap:8px;margin-top:8px;align-items:center}
+.card .act button{padding:5px 10px;font-size:13px}
+.card details{margin-top:6px;font-size:13px}
+.card details summary{cursor:pointer;color:var(--ink-2)}
+table{border-collapse:collapse;width:100%;margin-top:6px;font-size:12.5px}
+th,td{padding:3px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:nth-child(2),td:nth-child(2){text-align:left;white-space:normal}
+th{color:var(--muted);font-weight:600}
+.tip{position:fixed;pointer-events:none;background:var(--brand);color:#fff;padding:8px 10px;border-radius:8px;font-size:13px;line-height:1.4;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:10;display:none;max-width:280px}
+.tip b{display:block;font-size:14px;margin-bottom:2px}
+.tip span{color:#9fd8f2}
+footer{color:var(--muted);font-size:12.5px;margin-top:30px}
+@media (max-width:560px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <img alt="" src="data:image/png;base64,__LOGO__">
+  <div><h1>Рейтинг пабликов Ямал-Медиа</h1>
+  <p>ВКонтакте · Telegram · МАКС — подписчики, ER, просмотры за неделю</p></div>
+</div></header>
+
+<main>
+  <div id="drop" class="drop" tabindex="0" role="button">
+    <b>Перетащите сюда файл еженедельного съёма (.xlsx)</b>
+    <small>или нажмите, чтобы выбрать. Файл читается прямо в браузере и никуда не отправляется.</small>
+    <input id="file" type="file" accept=".xlsx,.xlsm,.xls" hidden>
+  </div>
+
+  <div id="msgs"></div>
+
+  <div id="app" hidden>
+    <div class="bar">
+      <label for="week">Неделя</label>
+      <select id="week"></select>
+      <label for="prev">сравнить с</label>
+      <select id="prev"></select>
+      <span class="spacer"></span>
+      <button id="zip" class="primary">Скачать все 9 PNG (zip)</button>
+    </div>
+
+    <details class="res" id="resBox">
+      <summary>Ресурсы в рейтинге <span id="resCount" style="font-weight:500;color:var(--muted)"></span></summary>
+      <div class="cols" id="resCols"></div>
+    </details>
+
+    <div id="charts"></div>
+  </div>
+
+  <footer>
+    ER — лайки за неделю ÷ подписчики ÷ 7 × 100%: какая доля подписчиков в среднем ставит лайк за день (аналог ER Page). Подписчики — прирост за неделю.
+    Δ и смена места — к выбранной неделе сравнения, по тем же ресурсам. Одноклассники в рейтинг не входят.
+  </footer>
+</main>
+<div class="tip" id="tip"></div>
+
+<script>
+'use strict';
+const LOGO_SRC = 'data:image/png;base64,__LOGO__';
+
+// ---------- конфигурация ----------
+const PLATFORMS = [
+  {key:'ВКонтакте', label:'ВКонтакте', short:'VK'},
+  {key:'МАКС',      label:'МАКС',      short:'MAX'},
+  {key:'Telegram',  label:'Telegram',  short:'TG'},
+];
+const PLATFORM_ALIASES = {'вконтакте':'ВКонтакте','вк':'ВКонтакте','telegram':'Telegram','телеграм':'Telegram','тг':'Telegram','макс':'МАКС','max':'МАКС'};
+const METRICS = [
+  {key:'growth', title:'Прирост подписчиков', file:'subscribers', unit:'чел. за неделю', diverging:true},
+  {key:'er',     title:'ER',                  file:'ER',         unit:'% подписчиков в день'},
+  {key:'views',  title:'Просмотры',           file:'views',  unit:'за неделю'},
+];
+const COLS = {pubs:'публикаций', views:'просмотры', likes:'лайки', subs:'подписчики', growth:'прирост подписчиков'};
+const MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+
+// цвета картинки (всегда светлая — её пересылают)
+const IMG = {bg:'#ffffff', band:'#001b39', bandSub:'#8fd3f2', ink:'#0f1b2d', ink2:'#4a5568', muted:'#7a8699',
+  grid:'#e6ebf1', pos:'#0096d6', neg:'#e0662f', good:'#2e8b3e', bad:'#d03b3b', zebra:'#f6f8fb'};
+
+// ---------- состояние ----------
+const S = {weeks:[], defaultWeek:null, wbName:'', excluded:loadExcluded(), cur:null, prev:null, renders:[]};
+
+function loadExcluded(){ try{ return new Set(JSON.parse(localStorage.getItem('ym-rating-excluded')||'[]')); }catch(e){ return new Set(); } }
+function saveExcluded(){ try{ localStorage.setItem('ym-rating-excluded', JSON.stringify([...S.excluded])); }catch(e){} }
+
+// ---------- утилиты ----------
+const norm = s => String(s ?? '').replace(/\s+/g,' ').trim().toLowerCase();
+const num = v => (typeof v === 'number' && isFinite(v)) ? v : null;
+const nf0 = new Intl.NumberFormat('ru-RU',{maximumFractionDigits:0});
+const nf2 = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
+const nf1 = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1});
+const signed = (v, f) => (v > 0 ? '+' : v < 0 ? '−' : '') + f(Math.abs(v));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function parseWeekLabel(text, sheetName){
+  const re = /(\d{1,2})(?:\.(\d{1,2}))?\s*[–—-]\s*(\d{1,2})\.(\d{1,2})(?:\.(\d{4}))?/;
+  const m = String(text||'').match(re) || String(sheetName||'').match(re);
+  if(!m) return null;
+  const d2 = +m[3], m2 = +m[4], y = m[5] ? +m[5] : new Date().getFullYear();
+  const d1 = +m[1], m1 = m[2] ? +m[2] : m2;
+  const y1 = m1 > m2 ? y - 1 : y;
+  return {start:new Date(y1, m1-1, d1), end:new Date(y, m2-1, d2), y};
+}
+function humanRange(w){
+  const a = w.start, b = w.end;
+  if(a.getMonth() === b.getMonth()) return `${a.getDate()}–${b.getDate()} ${MONTHS[b.getMonth()]} ${b.getFullYear()}`;
+  return `${a.getDate()} ${MONTHS[a.getMonth()]} – ${b.getDate()} ${MONTHS[b.getMonth()]} ${b.getFullYear()}`;
+}
+const pad = n => String(n).padStart(2,'0');
+const shortRange = w => w.start.getMonth()===w.end.getMonth()
+  ? `${pad(w.start.getDate())}–${pad(w.end.getDate())}.${pad(w.end.getMonth()+1)}`
+  : `${pad(w.start.getDate())}.${pad(w.start.getMonth()+1)}–${pad(w.end.getDate())}.${pad(w.end.getMonth()+1)}`;
+
+// ---------- чтение файла ----------
+function parseWorkbook(wb){
+  const weeks = [], errors = [], warns = [];
+  for(const name of wb.SheetNames){
+    const ws = wb.Sheets[name];
+    const rows = XLSX.utils.sheet_to_json(ws, {header:1, raw:true, defval:null, blankrows:true});
+    const title = rows[0] && rows[0][0];
+    const isWeekByName = /^\d{1,2}(\.\d{1,2})?\s*[-–]\s*\d{1,2}\.\d{1,2}$/.test(name.trim());
+    const isWeekByTitle = /съ[её]м/i.test(String(title||'')) && parseWeekLabel(title, '') != null;
+    if(!isWeekByName && !isWeekByTitle) continue;
+
+    const h = rows.findIndex(r => r && norm(r[0]) === 'площадка' && norm(r[1]) === 'ресурс');
+    if(h < 0){ errors.push(`Лист «${name}»: не найдена строка заголовков «Площадка | Ресурс».`); continue; }
+    const hdr = rows[h].map(norm);
+    const C = {}; const missing = [];
+    for(const [k, label] of Object.entries(COLS)){ C[k] = hdr.indexOf(label); if(C[k] < 0) missing.push(label); }
+    if(missing.length){ errors.push(`Лист «${name}»: нет колонок ${missing.map(x=>'«'+x+'»').join(', ')}.`); continue; }
+
+    const period = parseWeekLabel(title, name);
+    if(!period){ errors.push(`Лист «${name}»: не удалось понять даты недели.`); continue; }
+
+    const items = [], totals = {}, empty = [];
+    let currentPlatform = null;
+    for(let i = h+1; i < rows.length; i++){
+      const r = rows[i]; if(!r) continue;
+      const a = r[0] != null ? String(r[0]).trim() : '';
+      const b = r[1] != null ? String(r[1]).trim() : '';
+      if(!b) continue;
+      if(/^итого/i.test(b)){
+        const p = PLATFORM_ALIASES[norm(b.replace(/^итого\s*/i,''))];
+        if(p) totals[p] = {views:num(r[C.views]), likes:num(r[C.likes]), subs:num(r[C.subs]), growth:num(r[C.growth])};
+        continue;
+      }
+      if(a) currentPlatform = PLATFORM_ALIASES[norm(a)] || a;
+      const platform = currentPlatform;
+      if(!PLATFORMS.some(p => p.key === platform)) continue;
+      const rec = {platform, name:b, pubs:num(r[C.pubs]), views:num(r[C.views]), likes:num(r[C.likes]), subs:num(r[C.subs]), growth:num(r[C.growth])};
+      if(rec.views == null && rec.subs == null){ empty.push(`${platform} · ${b}`); continue; }
+      rec.er = (rec.likes != null && rec.subs) ? rec.likes / rec.subs / 7 * 100 : null;
+      items.push(rec);
+    }
+    // сверка с итоговыми строками листа
+    for(const p of PLATFORMS){
+      const t = totals[p.key]; if(!t) continue;
+      for(const k of ['views','likes','subs','growth']){
+        if(t[k] == null) continue;
+        const sum = items.filter(x => x.platform === p.key).reduce((s,x) => s + (x[k]||0), 0);
+        if(Math.abs(sum - t[k]) > 0.5) warns.push(`Лист «${name}», ${p.label}: сумма «${k}» по строкам (${nf0.format(sum)}) не совпадает с итогом (${nf0.format(t[k])}).`);
+      }
+    }
+    weeks.push({sheet:name, title:String(title||name), ...period, items, empty});
+  }
+  weeks.sort((a,b) => a.end - b.end);
+
+  // текущая неделя из «Сводки», B2
+  let def = null;
+  const sv = wb.SheetNames.find(n => norm(n) === 'сводка');
+  if(sv){
+    const c = wb.Sheets[sv]['B2'];
+    if(c && c.v != null) def = weeks.find(w => norm(w.sheet) === norm(c.v)) || null;
+  }
+  return {weeks, def: def || weeks[weeks.length-1] || null, errors, warns};
+}
+
+// ---------- рейтинги ----------
+function key(p, n){ return p + '|' + n; }
+function rankList(week, platform, metric){
+  if(!week) return [];
+  return week.items
+    .filter(x => x.platform === platform && !S.excluded.has(key(platform, x.name)) && x[metric] != null)
+    .sort((a,b) => b[metric] - a[metric] || a.name.localeCompare(b.name,'ru'))
+    .map((x,i) => ({...x, value:x[metric], rank:i+1}));
+}
+function buildSpec(platform, metric){
+  const cur = rankList(S.cur, platform.key, metric.key);
+  const prevList = rankList(S.prev, platform.key, metric.key);
+  const prevMap = new Map(prevList.map(x => [x.name, x]));
+  const rows = cur.map(x => {
+    const p = prevMap.get(x.name);
+    let delta = null;
+    if(p){
+      if(metric.key === 'views') delta = p.value ? (x.value - p.value) / p.value * 100 : null;
+      else delta = x.value - p.value;
+    }
+    return {...x, prevValue: p ? p.value : null, prevRank: p ? p.rank : null, delta, raw:x};
+  });
+  return {platform, metric, rows, week:S.cur, prev:S.prev};
+}
+function fmtValue(metric, v){
+  if(metric.key === 'er') return nf2.format(v) + ' %';
+  if(metric.key === 'growth') return signed(v, nf0.format);
+  return nf0.format(v);
+}
+function fmtDelta(metric, row){
+  if(row.prevValue == null) return '';
+  if(metric.key === 'views') return row.delta == null ? '' : signed(row.delta, nf1.format) + ' %';
+  if(metric.key === 'er') return signed(row.delta, nf2.format) + ' п.п.';
+  return 'было ' + signed(row.prevValue, nf0.format);
+}
+
+// ---------- отрисовка картинки ----------
+let logoImg = null;
+function loadLogo(){ return new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = LOGO_SRC; }); }
+
+const L = {W:1600, band:150, head:54, row:34, foot:84, padX:48};
+function draw(canvas, spec){
+  const {rows, metric, platform} = spec;
+  const n = Math.max(rows.length, 1);
+  const H = L.band + L.head + n * L.row + L.foot;
+  canvas.width = L.W; canvas.height = H;
+  const g = canvas.getContext('2d');
+  g.textBaseline = 'middle';
+  g.fillStyle = IMG.bg; g.fillRect(0,0,L.W,H);
+
+  // шапка
+  g.fillStyle = IMG.band; g.fillRect(0,0,L.W,L.band);
+  if(logoImg) g.drawImage(logoImg, L.padX - 8, (L.band-112)/2, 112, 112);
+  const tx = L.padX + 112 + 12;
+  g.fillStyle = '#fff'; g.font = '800 46px Manrope';
+  g.fillText(`${platform.label} · ${metric.title}`, tx, 58);
+  g.fillStyle = IMG.bandSub; g.font = '600 24px Manrope';
+  g.fillText(`Рейтинг пабликов Ямал-Медиа · ${humanRange(spec.week)}`, tx, 104);
+
+  // колонки
+  const xRank = L.padX + 34;          // правый край номера места
+  const xMove = L.padX + 52;          // левый край смены места
+  const xName = L.padX + 440;         // правый край названия
+  const xDeltaR = L.W - L.padX;       // правый край Δ
+  const deltaW = 200;
+  const valW = 150;
+  let p0 = xName + 24, p1 = xDeltaR - deltaW - valW;
+  const vals = rows.map(r => r.value);
+  let lo = Math.min(0, ...vals), hi = Math.max(0, ...vals);
+  if(hi === lo) hi = lo + 1;
+  if(lo < 0) p0 += valW - 20;         // место для подписи отрицательного столбца
+  const x = v => p0 + (v - lo) / (hi - lo) * (p1 - p0);
+  const x0 = x(0);
+
+  const yHead = L.band + L.head/2 + 4;
+  g.font = '600 18px Manrope'; g.fillStyle = IMG.muted;
+  g.textAlign = 'right'; g.fillText('место', xRank + 10, yHead);
+  g.fillText('паблик', xName, yHead);
+  g.textAlign = 'left'; g.fillText(metric.unit, metric.diverging ? x0 + 8 : p0, yHead);
+  if(spec.prev){ g.textAlign = 'right'; g.fillText('к ' + shortRange(spec.prev), xDeltaR, yHead); }
+
+  const top = L.band + L.head;
+  spec.hit = [];
+  if(!rows.length){
+    g.textAlign = 'left'; g.fillStyle = IMG.muted; g.font = '500 22px Manrope';
+    g.fillText('Нет данных по выбранным ресурсам', p0, top + L.row/2);
+  }
+  rows.forEach((r, i) => {
+    const y = top + i * L.row, cy = y + L.row/2;
+    if(i % 2 === 1){ g.fillStyle = IMG.zebra; g.fillRect(L.padX - 16, y, L.W - 2*L.padX + 32, L.row); }
+    // место
+    g.textAlign = 'right'; g.font = '700 19px Manrope'; g.fillStyle = IMG.ink2;
+    g.fillText(String(r.rank), xRank, cy);
+    // смена места
+    g.textAlign = 'left'; g.font = '700 16px Manrope';
+    if(spec.prev){
+      if(r.prevRank == null){ g.fillStyle = IMG.muted; g.fillText('нов.', xMove, cy); }
+      else {
+        const d = r.prevRank - r.rank;
+        if(d > 0){ g.fillStyle = IMG.good; g.fillText('▲' + d, xMove, cy); }
+        else if(d < 0){ g.fillStyle = IMG.bad; g.fillText('▼' + (-d), xMove, cy); }
+        else { g.fillStyle = IMG.muted; g.fillText('—', xMove, cy); }
+      }
+    }
+    // название
+    g.textAlign = 'right'; g.fillStyle = IMG.ink; g.font = '600 20px Manrope';
+    g.fillText(fitText(g, r.name, xName - xMove - 70), xName, cy);
+    // столбец
+    const xv = x(r.value), bh = 20;
+    const a = Math.min(x0, xv), w = Math.max(Math.abs(xv - x0), r.value === 0 ? 0 : 2);
+    g.fillStyle = r.value < 0 ? IMG.neg : IMG.pos;
+    roundBar(g, a, cy - bh/2, w, bh, 4, r.value < 0 ? 'left' : 'right');
+    // значение
+    g.fillStyle = IMG.ink; g.font = '700 19px Manrope';
+    if(r.value < 0){ g.textAlign = 'right'; g.fillText(fmtValue(metric, r.value), xv - 8, cy); }
+    else { g.textAlign = 'left'; g.fillText(fmtValue(metric, r.value), xv + 8, cy); }
+    // Δ
+    const dt = fmtDelta(metric, r);
+    if(dt){
+      g.textAlign = 'right'; g.font = '600 17px Manrope';
+      const pos = metric.key === 'growth' ? null : +r.delta.toFixed(metric.key === 'er' ? 2 : 1);
+      g.fillStyle = pos == null ? IMG.ink2 : pos > 0 ? IMG.good : pos < 0 ? IMG.bad : IMG.ink2;
+      g.fillText(dt, xDeltaR, cy);
+    }
+    spec.hit.push({y0:y, y1:y + L.row, row:r});
+  });
+  // нулевая линия
+  if(metric.diverging && rows.length){
+    g.fillStyle = IMG.ink2; g.fillRect(Math.round(x0) - 1, top - 4, 2, n * L.row + 8);
+  }
+  // подвал
+  const fy = top + n * L.row + 30;
+  g.textAlign = 'left'; g.fillStyle = IMG.muted; g.font = '500 17px Manrope';
+  const notes = {
+    er: 'ER — лайки за неделю ÷ подписчики ÷ 7 × 100%: доля подписчиков, ставящих лайк за день.',
+    views: 'Просмотры публикаций недели. Δ — изменение к прошлой неделе.',
+    growth: 'Прирост числа подписчиков за неделю. «было» — прирост прошлой недели.',
+  };
+  g.fillText(notes[metric.key], L.padX, fy);
+  g.fillText('▲▼ — смена места в рейтинге к прошлой неделе', L.padX, fy + 28);
+  g.textAlign = 'right'; g.fillText('Ямал-Медиа · аналитика', L.W - L.padX, fy + 28);
+}
+function fitText(g, t, maxW){
+  if(g.measureText(t).width <= maxW) return t;
+  while(t.length > 1 && g.measureText(t + '…').width > maxW) t = t.slice(0,-1);
+  return t + '…';
+}
+function roundBar(g, x, y, w, h, r, side){
+  r = Math.min(r, w/2, h/2);
+  g.beginPath();
+  if(side === 'right'){
+    g.moveTo(x, y); g.lineTo(x + w - r, y); g.arcTo(x + w, y, x + w, y + r, r);
+    g.lineTo(x + w, y + h - r); g.arcTo(x + w, y + h, x + w - r, y + h, r); g.lineTo(x, y + h);
+  } else {
+    g.moveTo(x + w, y); g.lineTo(x + r, y); g.arcTo(x, y, x, y + r, r);
+    g.lineTo(x, y + h - r); g.arcTo(x, y + h, x + r, y + h, r); g.lineTo(x + w, y + h);
+  }
+  g.closePath(); g.fill();
+}
+
+// ---------- страница ----------
+const $ = id => document.getElementById(id);
+function showMsgs(list){
+  $('msgs').innerHTML = list.map(m => `<div class="msg ${m.t}">${m.html}</div>`).join('');
+}
+function fileName(i, spec){
+  return `${pad(i+1)}_${spec.platform.short}_${spec.metric.file}_${shortRange(spec.week).replace('–','-')}.png`;
+}
+function renderAll(){
+  const box = $('charts'); box.innerHTML = ''; S.renders = [];
+  let i = 0;
+  for(const p of PLATFORMS){
+    const h = document.createElement('div'); h.className = 'platform'; h.textContent = p.label; box.appendChild(h);
+    const grid = document.createElement('div'); grid.className = 'grid'; box.appendChild(grid);
+    for(const m of METRICS){
+      const spec = buildSpec(p, m);
+      const card = document.createElement('div'); card.className = 'card';
+      const cv = document.createElement('canvas');
+      cv.setAttribute('role','img'); cv.setAttribute('aria-label', `${p.label}, ${m.title}: рейтинг`);
+      draw(cv, spec);
+      const name = fileName(i, spec);
+      card.appendChild(cv);
+      const act = document.createElement('div'); act.className = 'act';
+      const btn = document.createElement('button'); btn.textContent = 'PNG';
+      btn.onclick = () => cv.toBlob(b => saveBlob(b, name), 'image/png');
+      act.appendChild(btn);
+      const cap = document.createElement('span'); cap.style.cssText = 'color:var(--muted);font-size:12.5px'; cap.textContent = name;
+      act.appendChild(cap);
+      card.appendChild(act);
+      card.appendChild(tableFor(spec));
+      grid.appendChild(card);
+      attachTip(cv, spec);
+      S.renders.push({cv, name});
+      i++;
+    }
+  }
+}
+function tableFor(spec){
+  const d = document.createElement('details');
+  const m = spec.metric;
+  const rows = spec.rows.map(r => `<tr><td>${r.rank}</td><td>${esc(r.name)}</td><td>${fmtValue(m, r.value)}</td><td>${r.prevValue == null ? '—' : fmtValue(m, r.prevValue)}</td><td>${r.prevRank ?? '—'}</td><td>${r.raw.likes == null ? '—' : nf0.format(r.raw.likes)}</td><td>${r.raw.subs == null ? '—' : nf0.format(r.raw.subs)}</td></tr>`).join('');
+  d.innerHTML = `<summary>Таблица</summary><table><thead><tr><th>#</th><th>Паблик</th><th>${esc(m.title)}</th><th>пред.</th><th>пред. место</th><th>лайки</th><th>подписч.</th></tr></thead><tbody>${rows}</tbody></table>`;
+  return d;
+}
+function attachTip(cv, spec){
+  const tip = $('tip');
+  cv.addEventListener('mousemove', e => {
+    const rect = cv.getBoundingClientRect();
+    const y = (e.clientY - rect.top) * cv.height / rect.height;
+    const h = spec.hit.find(h => y >= h.y0 && y < h.y1);
+    if(!h){ tip.style.display = 'none'; return; }
+    const r = h.row, m = spec.metric;
+    const parts = [`<b>${r.rank}. ${esc(r.name)}</b>`, `${esc(m.title)}: <span>${fmtValue(m, r.value)}</span>`];
+    if(r.prevValue != null) parts.push(`пред. неделя: ${fmtValue(m, r.prevValue)} (место ${r.prevRank})`);
+    parts.push(`просмотры ${r.raw.views == null ? '—' : nf0.format(r.raw.views)} · лайки ${r.raw.likes == null ? '—' : nf0.format(r.raw.likes)}`);
+    parts.push(`подписчики ${r.raw.subs == null ? '—' : nf0.format(r.raw.subs)} · постов ${r.raw.pubs ?? '—'}`);
+    tip.innerHTML = parts.join('<br>');
+    tip.style.display = 'block';
+    const tx = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 8);
+    const ty = Math.min(e.clientY + 14, window.innerHeight - tip.offsetHeight - 8);
+    tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
+  });
+  cv.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+}
+function saveBlob(blob, name){
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+async function downloadZip(){
+  const zip = new JSZip();
+  for(const r of S.renders){
+    const blob = await new Promise(res => r.cv.toBlob(res, 'image/png'));
+    zip.file(r.name, blob);
+  }
+  const out = await zip.generateAsync({type:'blob'});
+  saveBlob(out, `rating_${shortRange(S.cur).replace('–','-')}.zip`);
+}
+function renderResources(){
+  const all = new Map();
+  for(const w of S.weeks) for(const it of w.items){
+    if(!all.has(it.platform)) all.set(it.platform, new Set());
+    all.get(it.platform).add(it.name);
+  }
+  const inCur = new Set((S.cur?.items || []).map(x => key(x.platform, x.name)));
+  const cols = $('resCols'); cols.innerHTML = '';
+  for(const p of PLATFORMS){
+    const names = [...(all.get(p.key) || [])];
+    const order = new Map((S.cur?.items || []).filter(x => x.platform === p.key).map((x,i) => [x.name, i]));
+    names.sort((a,b) => (order.get(a) ?? 999) - (order.get(b) ?? 999) || a.localeCompare(b,'ru'));
+    const col = document.createElement('div'); col.className = 'col';
+    col.innerHTML = `<h4>${p.label} <span data-p="${esc(p.key)}">все / ни одного</span></h4>` + names.map(n => {
+      const k = key(p.key, n), na = !inCur.has(k);
+      return `<label class="${na ? 'na' : ''}"><input type="checkbox" data-k="${esc(k)}" ${S.excluded.has(k) ? '' : 'checked'}> ${esc(n)}${na ? ' <small>(нет данных)</small>' : ''}</label>`;
+    }).join('');
+    cols.appendChild(col);
+  }
+  cols.querySelectorAll('input[type=checkbox]').forEach(cb => cb.onchange = () => {
+    if(cb.checked) S.excluded.delete(cb.dataset.k); else S.excluded.add(cb.dataset.k);
+    saveExcluded(); updateCount(); renderAll();
+  });
+  cols.querySelectorAll('h4 span').forEach(sp => sp.onclick = () => {
+    const boxes = [...sp.closest('.col').querySelectorAll('input')];
+    const allOn = boxes.every(b => b.checked);
+    boxes.forEach(b => { b.checked = !allOn; if(b.checked) S.excluded.delete(b.dataset.k); else S.excluded.add(b.dataset.k); });
+    saveExcluded(); updateCount(); renderAll();
+  });
+  updateCount();
+}
+function updateCount(){
+  const total = (S.cur?.items || []).length;
+  const on = (S.cur?.items || []).filter(x => !S.excluded.has(key(x.platform, x.name))).length;
+  $('resCount').textContent = `— ${on} из ${total}`;
+}
+function fillSelects(){
+  const opts = S.weeks.map((w,i) => `<option value="${i}">${humanRange(w)} · лист «${esc(w.sheet)}»</option>`).reverse().join('');
+  $('week').innerHTML = opts;
+  $('week').value = S.weeks.indexOf(S.cur);
+  syncPrev();
+}
+function syncPrev(){
+  const ci = S.weeks.indexOf(S.cur);
+  const opts = ['<option value="-1">— не сравнивать</option>'].concat(
+    S.weeks.map((w,i) => i === ci ? '' : `<option value="${i}">${humanRange(w)}</option>`).reverse()).join('');
+  $('prev').innerHTML = opts;
+  $('prev').value = S.prev ? S.weeks.indexOf(S.prev) : -1;
+}
+function prevOf(w){
+  const i = S.weeks.indexOf(w);
+  return i > 0 ? S.weeks[i-1] : null;
+}
+
+async function handleFile(file){
+  showMsgs([{t:'info', html:`Читаю «${esc(file.name)}»…`}]);
+  try{
+    await ready;
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, {type:'array', cellDates:false});
+    const res = parseWorkbook(wb);
+    const msgs = [];
+    res.errors.forEach(e => msgs.push({t:'err', html:esc(e)}));
+    res.warns.forEach(e => msgs.push({t:'warn', html:esc(e)}));
+    if(!res.weeks.length){
+      msgs.unshift({t:'err', html:'В файле не нашлось ни одного листа недели. Ожидаются листы вида «21-27.09» с заголовками «Площадка | Ресурс | Публикаций | Просмотры | … | Подписчики | Прирост подписчиков».'});
+      showMsgs(msgs); $('app').hidden = true; return;
+    }
+    S.weeks = res.weeks; S.cur = res.def; S.prev = prevOf(S.cur); S.wbName = file.name;
+    msgs.unshift({t:'info', html:`Файл «${esc(file.name)}»: найдено недель — ${res.weeks.length}. Текущая — <b>${humanRange(S.cur)}</b>${S.prev ? `, сравнение с ${humanRange(S.prev)}` : ''}.`});
+    showMsgs(msgs);
+    $('drop').classList.add('compact');
+    $('drop').innerHTML = `<b>Загрузить другой файл</b><small>${esc(file.name)}</small>`;
+    $('drop').appendChild(fileInput);
+    $('app').hidden = false;
+    fillSelects(); renderResources(); renderAll();
+  }catch(e){
+    console.error(e);
+    showMsgs([{t:'err', html:'Не удалось прочитать файл: ' + esc(e.message || e)}]);
+  }
+}
+
+const fileInput = $('file');
+const drop = $('drop');
+drop.addEventListener('click', e => { if(e.target !== fileInput) fileInput.click(); });
+drop.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); fileInput.click(); } });
+fileInput.addEventListener('change', () => { if(fileInput.files[0]) handleFile(fileInput.files[0]); fileInput.value = ''; });
+['dragenter','dragover'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); if(ev === 'drop' || e.target === drop) drop.classList.remove('over'); }));
+document.addEventListener('drop', e => { const f = e.dataTransfer?.files?.[0]; if(f) handleFile(f); });
+$('week').onchange = () => { S.cur = S.weeks[+$('week').value]; S.prev = prevOf(S.cur); syncPrev(); renderResources(); renderAll(); };
+$('prev').onchange = () => { const v = +$('prev').value; S.prev = v < 0 ? null : S.weeks[v]; renderAll(); };
+$('zip').onclick = async () => { const b = $('zip'); b.disabled = true; b.textContent = 'Собираю…'; try{ await downloadZip(); } finally { b.disabled = false; b.textContent = 'Скачать все 9 PNG (zip)'; } };
+
+const ready = (async () => {
+  logoImg = await loadLogo();
+  try{ await Promise.all(['800 46px Manrope','700 19px Manrope','600 20px Manrope','500 17px Manrope','600 24px Manrope'].map(f => document.fonts.load(f, 'Ямал-Медиа Ab 0123'))); }catch(e){}
+  window.__ready = true;
+})();
+</script>
+</body>
+</html>
