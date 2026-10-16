@@ -3,8 +3,8 @@
 (function (root) {
   'use strict';
 
-  const PLATFORM_KEYS = ['ВКонтакте', 'МАКС', 'Telegram'];
-  const PLATFORM_ALIASES = {'вконтакте':'ВКонтакте','вк':'ВКонтакте','telegram':'Telegram','телеграм':'Telegram','тг':'Telegram','макс':'МАКС','max':'МАКС'};
+  const PLATFORM_KEYS = ['ВКонтакте', 'МАКС', 'Telegram', 'Одноклассники'];
+  const PLATFORM_ALIASES = {'вконтакте':'ВКонтакте','вк':'ВКонтакте','telegram':'Telegram','телеграм':'Telegram','тг':'Telegram','макс':'МАКС','max':'МАКС','одноклассники':'Одноклассники','ок':'Одноклассники'};
   const COLS = {pubs:'публикаций', views:'просмотры', likes:'лайки', subs:'подписчики', growth:'прирост подписчиков'};
   const METRIC_RU = {views:'просмотры', likes:'лайки', subs:'подписчики', growth:'прирост подписчиков'};
 

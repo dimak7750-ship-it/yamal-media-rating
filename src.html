@@ -95,7 +95,7 @@ footer{color:var(--muted);font-size:12.5px;margin-top:30px}
 <header class="top"><div class="in">
   <img alt="" src="data:image/png;base64,__LOGO__">
   <div><h1>Рейтинг пабликов Ямал-Медиа</h1>
-  <p>ВКонтакте · Telegram · МАКС — подписчики, ER, просмотры за неделю</p></div>
+  <p>ВКонтакте · МАКС · Telegram · Одноклассники — подписчики, ER, просмотры за неделю</p></div>
 </div></header>
 
 <main>
@@ -113,7 +113,7 @@ footer{color:var(--muted);font-size:12.5px;margin-top:30px}
       <select id="prev"></select>
       <span class="spacer"></span>
       <button id="previewBtn" type="button" title="Построить картинки по файлу с компьютера — на сайт он не попадёт">Предпросмотр файла…</button>
-      <button id="zip" class="primary">Скачать все 9 PNG (zip)</button>
+      <button id="zip" class="primary">Скачать все 12 PNG (zip)</button>
     </div>
 
     <details class="res" id="resBox">
@@ -126,7 +126,7 @@ footer{color:var(--muted);font-size:12.5px;margin-top:30px}
 
   <footer>
     ER — лайки за неделю ÷ подписчики ÷ 7 × 100%: какая доля подписчиков в среднем ставит лайк за день (аналог ER Page). Подписчики — прирост за неделю.
-    Δ и смена места — к выбранной неделе сравнения, по тем же ресурсам. Одноклассники в рейтинг не входят.
+    Δ и смена места — к выбранной неделе сравнения, по тем же ресурсам.
   </footer>
 </main>
 <div class="tip" id="tip"></div>
@@ -140,6 +140,7 @@ const PLATFORMS = [
   {key:'ВКонтакте', label:'ВКонтакте', short:'VK'},
   {key:'МАКС',      label:'МАКС',      short:'MAX'},
   {key:'Telegram',  label:'Telegram',  short:'TG'},
+  {key:'Одноклассники', label:'Одноклассники', short:'OK'},
 ];
 const METRICS = [
   {key:'growth', title:'Прирост подписчиков', file:'subscribers', unit:'чел. за неделю', diverging:true},
@@ -195,7 +196,8 @@ function buildSpec(platform, metric){
       if(metric.key === 'views') delta = p.value ? (x.value - p.value) / p.value * 100 : null;
       else delta = x.value - p.value;
     }
-    return {...x, prevValue: p ? p.value : null, prevRank: p ? p.rank : null, delta, raw:x};
+    const inPrev = !!(S.prev && S.prev.items.some(y => y.platform === platform.key && y.name === x.name));
+    return {...x, prevValue: p ? p.value : null, prevRank: p ? p.rank : null, inPrev, delta, raw:x};
   });
   return {platform, metric, rows, week:S.cur, prev:S.prev};
 }
@@ -271,7 +273,7 @@ function draw(canvas, spec){
     // смена места
     g.textAlign = 'left'; g.font = '700 16px Manrope';
     if(spec.prev){
-      if(r.prevRank == null){ g.fillStyle = IMG.muted; g.fillText('нов.', xMove, cy); }
+      if(r.prevRank == null){ g.fillStyle = IMG.muted; g.fillText(r.inPrev ? 'н/д' : 'нов.', xMove, cy); }
       else {
         const d = r.prevRank - r.rank;
         if(d > 0){ g.fillStyle = IMG.good; g.fillText('▲' + d, xMove, cy); }
@@ -314,7 +316,7 @@ function draw(canvas, spec){
     growth: 'Прирост числа подписчиков за неделю. «было» — прирост прошлой недели.',
   };
   g.fillText(notes[metric.key], L.padX, fy);
-  g.fillText('▲▼ — смена места в рейтинге к прошлой неделе', L.padX, fy + 28);
+  g.fillText(rows.some(r => r.prevRank == null && r.inPrev) ? '▲▼ — смена места к прошлой неделе · н/д — за прошлую неделю нет данных' : '▲▼ — смена места в рейтинге к прошлой неделе', L.padX, fy + 28);
   g.textAlign = 'right'; g.fillText('Ямал-Медиа · аналитика', L.W - L.padX, fy + 28);
 }
 function fitText(g, t, maxW){
@@ -547,7 +549,7 @@ document.addEventListener('drop', e => { const f = e.dataTransfer?.files?.[0]; i
 $('week').onchange = () => { S.cur = S.weeks[+$('week').value]; S.prev = prevOf(S.cur); syncPrev(); renderResources(); renderAll(); };
 $('previewBtn').onclick = () => fileInput.click();
 $('prev').onchange = () => { const v = +$('prev').value; S.prev = v < 0 ? null : S.weeks[v]; renderAll(); };
-$('zip').onclick = async () => { const b = $('zip'); b.disabled = true; b.textContent = 'Собираю…'; try{ await downloadZip(); } finally { b.disabled = false; b.textContent = 'Скачать все 9 PNG (zip)'; } };
+$('zip').onclick = async () => { const b = $('zip'); b.disabled = true; b.textContent = 'Собираю…'; try{ await downloadZip(); } finally { b.disabled = false; b.textContent = 'Скачать все 12 PNG (zip)'; } };
 
 const ready = (async () => {
   logoImg = await loadLogo();
