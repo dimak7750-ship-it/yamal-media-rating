@@ -20,115 +20,282 @@
 @font-face{font-family:Manrope;font-style:normal;font-weight:800;font-display:swap;src:url(fonts/manrope-cyrillic-800-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
 @font-face{font-family:Manrope;font-style:normal;font-weight:800;font-display:swap;src:url(fonts/manrope-latin-800-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 :root{
-  --bg:#f4f6f9; --surface:#ffffff; --ink:#0f1b2d; --ink-2:#4a5568; --muted:#7a8699;
-  --line:#e2e7ee; --brand:#001b39; --accent:#0096d6; --accent-soft:#e3f4fb;
-  --good:#2e8b3e; --bad:#d03b3b; --warn-bg:#fff6e0; --warn-ink:#7a5300; --err-bg:#fde8e8; --err-ink:#8a1c1c;
+  --bg:#f4f6f9; --surface:#ffffff; --surface-2:#f7f9fc; --ink:#0f1b2d; --ink-2:#4a5568; --muted:#7a8699;
+  --line:#e2e7ee; --grid:#edf0f4; --axis:#c9d1dc; --brand:#001b39; --accent:#0096d6; --accent-soft:#e3f4fb;
+  --good:#1f7a33; --bad:#c53030; --neg:#a3adba; --hl:#fff3c4;
+  --warn-bg:#fff6e0; --warn-ink:#7a5300; --err-bg:#fde8e8; --err-ink:#8a1c1c;
+  --s-vk:#2a78d6; --s-max:#7c4ddb; --s-tg:#17a673; --s-ok:#ee7a1c;
+  --shadow:0 1px 2px rgba(15,27,45,.04),0 4px 14px rgba(15,27,45,.05);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#0b1420; --surface:#121e2e; --ink:#e8eef6; --ink-2:#b4c0cf; --muted:#8593a6;
-    --line:#22324a; --accent:#33b8ee; --accent-soft:#0f2c40;
+    --bg:#0b1420; --surface:#121e2e; --surface-2:#172538; --ink:#e8eef6; --ink-2:#b4c0cf; --muted:#8593a6;
+    --line:#22324a; --grid:#1b2a3e; --axis:#34465f; --accent:#33b8ee; --accent-soft:#0f2c40;
+    --good:#3fbf5a; --bad:#f07070; --neg:#5c6b80; --hl:#3a3212;
     --warn-bg:#3a2e10; --warn-ink:#f3d58a; --err-bg:#3b1717; --err-ink:#f6b3b3;
+    --s-vk:#3f8ceb; --s-max:#9b74ee; --s-tg:#26b884; --s-ok:#f08a35;
+    --shadow:none;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0b1420; --surface:#121e2e; --ink:#e8eef6; --ink-2:#b4c0cf; --muted:#8593a6;
-  --line:#22324a; --accent:#33b8ee; --accent-soft:#0f2c40;
+  --bg:#0b1420; --surface:#121e2e; --surface-2:#172538; --ink:#e8eef6; --ink-2:#b4c0cf; --muted:#8593a6;
+  --line:#22324a; --grid:#1b2a3e; --axis:#34465f; --accent:#33b8ee; --accent-soft:#0f2c40;
+  --good:#3fbf5a; --bad:#f07070; --neg:#5c6b80; --hl:#3a3212;
   --warn-bg:#3a2e10; --warn-ink:#f3d58a; --err-bg:#3b1717; --err-ink:#f6b3b3;
+  --s-vk:#3f8ceb; --s-max:#9b74ee; --s-tg:#26b884; --s-ok:#f08a35;
+  --shadow:none;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:15px/1.45 Manrope,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,select,input{font:inherit;color:var(--ink)}
 header.top{background:var(--brand);color:#fff}
-header.top .in{max-width:1280px;margin:0 auto;padding:18px 16px;display:flex;gap:14px;align-items:center}
+header.top .in{max-width:1320px;margin:0 auto;padding:16px;display:flex;gap:14px;align-items:center}
 header.top img{width:44px;height:44px}
 header.top h1{font-size:20px;margin:0;font-weight:800;letter-spacing:-.01em}
 header.top p{margin:0;color:#9fd8f2;font-size:13px}
-main{max-width:1280px;margin:0 auto;padding:20px 16px 60px}
-.drop{border:2px dashed var(--line);background:var(--surface);border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+header.top .in{flex-wrap:wrap}
+.hact{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.hbtn{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:9px;padding:7px 12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.hbtn:hover{background:rgba(255,255,255,.08)}
+.hbtn.primary{background:#00b4ec;border-color:#00b4ec;color:#001b39}
+.hbtn:disabled{opacity:.5;cursor:default}
+main{max-width:1320px;margin:0 auto;padding:16px 16px 60px}
+
+.drop{border:2px dashed var(--line);background:var(--surface);border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer}
 .drop.over{border-color:var(--accent);background:var(--accent-soft)}
-.drop b{font-size:17px}
-.drop small{display:block;color:var(--muted);margin-top:6px}
-.drop.compact{padding:12px 16px;text-align:left;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.drop.compact b{font-size:15px}
-.drop.compact small{margin:0}
-.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:16px 0}
-.bar label{color:var(--ink-2);font-size:14px}
-select,button{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 12px}
-button{cursor:pointer;font-weight:600}
-button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-button:hover{filter:brightness(1.05)}
-button:disabled{opacity:.5;cursor:default}
+.drop b{font-size:17px}.drop small{display:block;color:var(--muted);margin-top:6px}
+
+/* панель управления */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin:0 0 10px;position:relative}
+.toolbar label{color:var(--ink-2);font-size:14px}
+select,.btn,.search{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:7px 11px}
+.btn{cursor:pointer;font-weight:600;white-space:nowrap}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn:hover{filter:brightness(1.04)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.sm{padding:4px 9px;font-size:12.5px;border-radius:7px}
+.search{width:200px}
 .spacer{flex:1}
-.msg{border-radius:10px;padding:10px 14px;margin:12px 0;font-size:14px}
+.seg{display:inline-flex;gap:3px;align-items:center;font-size:13px;color:var(--muted)}
+.seg button{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:5px 10px;font-size:13px;cursor:pointer;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);font-weight:700}
+.res{position:relative}
+.res>summary{list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:7px 11px;cursor:pointer;font-weight:600}
+.res>summary::-webkit-details-marker{display:none}
+.res>summary small{color:var(--muted);font-weight:500}
+.res .pop{position:absolute;z-index:20;top:calc(100% + 6px);left:0;width:min(940px,calc(100vw - 32px));max-height:60vh;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.18);padding:12px 16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px 22px}
+.col h4{margin:4px 0 6px;font-size:13.5px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.col h4>span:last-child{font-weight:500;font-size:12px;color:var(--accent);cursor:pointer}
+.col label{display:flex;gap:8px;align-items:center;font-size:13.5px;padding:1px 0}
+.col label.na{color:var(--muted)}
+
+.msg{border-radius:10px;padding:9px 14px;margin:0 0 10px;font-size:13.5px}
 .msg.warn{background:var(--warn-bg);color:var(--warn-ink)}
 .msg.err{background:var(--err-bg);color:var(--err-ink)}
-.msg.info{background:var(--surface);color:var(--ink-2);border:1px solid var(--line)}
-.msg button{margin-left:8px;padding:4px 10px;font-size:13px}
-details.res{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin:0 0 18px}
-details.res summary{padding:12px 16px;cursor:pointer;font-weight:700}
-details.res .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px 24px;padding:4px 16px 16px}
-.col h4{margin:6px 0;font-size:14px;display:flex;justify-content:space-between;align-items:center}
-.col h4 span{font-weight:500;font-size:12px;color:var(--accent);cursor:pointer}
-.col label{display:flex;gap:8px;align-items:center;font-size:14px;padding:2px 0;color:var(--ink)}
-.col label.na{color:var(--muted)}
-.platform{margin:26px 0 8px;font-size:18px;font-weight:800}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(520px,1fr));gap:16px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;position:relative}
-.card canvas{width:100%;height:auto;display:block;border-radius:6px;background:#fff}
-.card .act{display:flex;gap:8px;margin-top:8px;align-items:center}
-.card .act button{padding:5px 10px;font-size:13px}
-.card details{margin-top:6px;font-size:13px}
-.card details summary{cursor:pointer;color:var(--ink-2)}
-table{border-collapse:collapse;width:100%;margin-top:6px;font-size:12.5px}
-th,td{padding:3px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
-th:nth-child(2),td:nth-child(2){text-align:left;white-space:normal}
-th{color:var(--muted);font-weight:600}
-.tip{position:fixed;pointer-events:none;background:var(--brand);color:#fff;padding:8px 10px;border-radius:8px;font-size:13px;line-height:1.4;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:10;display:none;max-width:280px}
-.tip b{display:block;font-size:14px;margin-bottom:2px}
-.tip span{color:#9fd8f2}
-footer{color:var(--muted);font-size:12.5px;margin-top:30px}
-@media (max-width:560px){.grid{grid-template-columns:1fr}}
+.msg.info{color:var(--ink-2);padding:0 2px}
+.msg button{margin-left:8px}
+
+/* вкладки */
+.tabsrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:4px 0 12px}
+.tabs{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:3px;flex-wrap:wrap}
+.tabs button{border:0;background:none;padding:8px 16px;border-radius:8px;font-weight:700;color:var(--ink-2);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--brand);color:#fff}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:6px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px 16px;box-shadow:var(--shadow)}
+.kpi.total{background:var(--brand);border-color:var(--brand);color:#fff}
+.kpi-h{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14.5px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--c);flex:none;display:inline-block}
+.hero{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-top:6px}
+.hero .v{font-size:27px;font-weight:800;letter-spacing:-.01em;font-variant-numeric:tabular-nums;line-height:1.15}
+.kpi-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.kpi.total .kpi-sub{color:#9fd8f2}
+.d{font-size:13px;font-weight:700;white-space:nowrap}
+.d.up{color:var(--good)}.d.down{color:var(--bad)}.d.flat{color:var(--muted)}
+.kpi.total .d.up{color:#7ee2a0}.kpi.total .d.down{color:#ff9d9d}.kpi.total .d.flat{color:#9fd8f2}
+.share{display:flex;height:8px;border-radius:4px;overflow:hidden;margin-top:9px;gap:2px}
+.share i{background:var(--c);display:block}
+.share-l{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:11.5px;color:#cfe9f7;margin-top:4px}
+.share-l span{display:inline-flex;align-items:center;gap:4px}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow)}
+.panel h3{margin:0;font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px}
+.panel .sub{color:var(--muted);font-size:12.5px;margin:2px 0 8px}
+.sec-h{display:flex;align-items:baseline;gap:10px;margin:22px 0 10px;flex-wrap:wrap}
+.sec-h h2{font-size:17px;margin:0;font-weight:800}
+.sec-h span{color:var(--muted);font-size:13px}
+
+/* рейтинги */
+.ranks{display:grid;grid-template-columns:repeat(auto-fit,minmax(520px,1fr));gap:14px}
+.rank-h{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.rank-h .btn{margin-left:auto}
+.rows{display:grid;grid-template-columns:28px 42px minmax(120px,190px) 1fr 92px;column-gap:8px;align-items:center;font-size:13.5px}
+.rows .hd{font-size:11.5px;color:var(--muted);padding:0 0 4px}
+.rows .hd.r{text-align:right}
+.row{display:contents}
+.row>*{padding:4px 0;border-top:1px solid var(--grid);min-height:30px;display:flex;align-items:center}
+.row:hover>*{background:var(--surface-2)}
+.row.hit>*{background:var(--hl)}
+.dimmed .row:not(.hit)>*{opacity:.35}
+.row .rk{justify-content:flex-end;color:var(--ink-2);font-weight:700;font-variant-numeric:tabular-nums}
+.row .mv{font-size:12px;font-weight:700}
+.mv.up{color:var(--good)}.mv.down{color:var(--bad)}.mv.flat,.mv.na{color:var(--muted);font-weight:500}
+.nmb{border:0;background:none;padding:0;text-align:left;font-weight:600;color:var(--ink);cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.nmb:hover{color:var(--accent);text-decoration:underline}
+.track{position:relative;height:20px;width:100%}
+.bar{position:absolute;top:3px;height:14px;background:var(--c)}
+.bar.pos{border-radius:0 4px 4px 0}
+.bar.neg{border-radius:4px 0 0 4px;background:var(--neg)}
+.track .zl{position:absolute;top:-4px;bottom:-4px;width:1.5px;background:var(--axis)}
+.val{position:absolute;top:0;line-height:20px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:13px}
+.row .dl{justify-content:flex-end;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.dl.up{color:var(--good)}.dl.down{color:var(--bad)}.dl.flat{color:var(--ink-2);font-weight:500}
+.empty{color:var(--muted);padding:12px 0}
+.rows.narrow .track{height:28px}
+.rows.narrow .val{left:auto!important;right:8px!important;top:0;line-height:18px;font-size:12.5px}
+.rows.narrow .bar{top:20px;height:5px}
+.rows.narrow .zl{top:17px;bottom:0}
+
+/* матрица */
+.mx-wrap{overflow-x:auto}
+table.mx{border-collapse:separate;border-spacing:3px;width:100%;min-width:640px;font-size:13px}
+.mx th{font-size:12px;color:var(--muted);font-weight:700;padding:4px 8px;text-align:right;white-space:nowrap;cursor:pointer;user-select:none}
+.mx th:first-child{text-align:left}
+.mx th.on{color:var(--ink)}
+.mx th .dot{margin-right:5px;vertical-align:middle}
+.mx td{padding:3px 8px;text-align:right;border-radius:6px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mx td:first-child{text-align:left;padding-left:0;max-width:210px;overflow:hidden;text-overflow:ellipsis}
+.mx td .sh{font-size:11px;color:var(--ink-2);font-weight:500;margin-left:6px;display:inline-block;min-width:28px;text-align:right}
+.mx td.na{color:var(--muted)}
+.mx td.tot{font-weight:800}
+.mx tr.hit td:first-child{background:var(--hl)}
+.mx.dimmed tr:not(.hit) td{opacity:.35}
+
+/* динамика */
+.trend{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.trend .panel{padding:12px 12px 6px}
+.trend .wide{grid-column:1/-1;padding:12px 16px}
+.now{margin-left:auto;font-weight:800;font-size:15px;font-variant-numeric:tabular-nums}
+svg.ch{display:block;width:100%;height:auto;overflow:visible}
+svg.ch text{font-family:inherit;font-size:11px;fill:var(--muted)}
+svg.ch .gl{stroke:var(--grid);stroke-width:1}
+svg.ch .zero{stroke:var(--axis);stroke-width:1.5}
+svg.ch .guide{stroke:var(--ink-2);stroke-width:1;stroke-dasharray:3 3}
+svg.ch .curw{fill:var(--accent-soft)}
+.stk{display:grid;grid-template-columns:110px 1fr 90px;gap:4px 10px;align-items:center;font-size:12.5px}
+.stk .lb{color:var(--ink-2);font-variant-numeric:tabular-nums}
+.stk .lb.on{color:var(--ink);font-weight:800}
+.stk .tt{text-align:right;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.stk .bars{display:flex;height:16px;gap:2px;cursor:default}
+.stk .bars i{background:var(--c);display:block;height:100%}
+.stk .bars i:first-child{border-radius:4px 0 0 4px}.stk .bars i:last-child{border-radius:0 4px 4px 0}
+
+/* карточка */
+.back{position:fixed;inset:0;background:rgba(0,10,25,.45);z-index:40}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(680px,100vw);background:var(--bg);z-index:41;overflow:auto;box-shadow:-12px 0 40px rgba(0,0,0,.25);padding:0 0 30px}
+.drawer .dh{background:var(--brand);color:#fff;padding:16px 18px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:1}
+.drawer .dh h2{margin:0;font-size:20px;font-weight:800}
+.drawer .dh small{color:#9fd8f2;display:block;font-size:12.5px}
+.drawer .dh button{margin-left:auto;background:none;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer}
+.drawer .body{padding:14px 16px;display:grid;gap:12px}
+.drawer table{border-collapse:collapse;width:100%;font-size:13px}
+.drawer th,.drawer td{padding:6px 6px;border-bottom:1px solid var(--grid);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.drawer th{color:var(--muted);font-weight:600;font-size:12px}
+.drawer th:first-child,.drawer td:first-child{text-align:left}
+.drawer td small{display:block;font-weight:700}
+.drawer td small.pl{color:var(--muted);font-weight:500}
+
+.tip{position:fixed;pointer-events:none;background:var(--brand);color:#fff;padding:8px 10px;border-radius:8px;font-size:12.5px;line-height:1.45;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:60;display:none;max-width:300px}
+.tip b{display:block;font-size:13.5px;margin-bottom:2px}
+.tip .k{color:#9fd8f2}
+.tip i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:var(--c)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--brand);color:#fff;padding:9px 16px;border-radius:10px;font-size:13.5px;z-index:70;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+footer{color:var(--muted);font-size:12.5px;margin-top:26px;line-height:1.6}
+
+@media (max-width:600px){
+  .ranks{grid-template-columns:1fr}
+  .rows{grid-template-columns:22px 34px minmax(90px,120px) 1fr 70px;column-gap:6px;font-size:12.5px}
+  .hero .v{font-size:23px}
+  .search{width:100%}
+  .stk{grid-template-columns:70px 1fr 64px}
+  header.top img{width:36px;height:36px}
+  .drawer .dh button{white-space:nowrap}
+  header.top h1{font-size:18px}
+  header.top .in>div:nth-child(2){flex:1;min-width:0}
+  .hact{margin-left:0;justify-content:flex-start}
+}
 </style>
 </head>
 <body>
 <header class="top"><div class="in">
   <img alt="" src="data:image/png;base64,__LOGO__">
   <div><h1>Рейтинг пабликов Ямал-Медиа</h1>
-  <p>ВКонтакте · МАКС · Telegram · Одноклассники — подписчики, ER, просмотры за неделю</p></div>
+  <p>ВКонтакте · МАКС · Telegram · Одноклассники</p></div>
+  <div class="hact" id="hact" hidden>
+    <button id="themeBtn" class="hbtn" type="button" title="Тема оформления: авто / светлая / тёмная">◐ Авто</button>
+    <button id="linkBtn" class="hbtn" type="button" title="Скопировать ссылку на этот вид: период, вкладка, поиск, карточка">Ссылка</button>
+    <button id="xlsBtn" class="hbtn" type="button" title="Таблицы рейтинга, итоги и матрица — в Excel">Excel</button>
+    <button id="previewBtn" class="hbtn" type="button" title="Построить дашборд по файлу с компьютера — на сайт он не попадёт">Файл…</button>
+    <button id="zip" class="hbtn primary" type="button">Скачать 12 PNG</button>
+  </div>
 </div></header>
 
 <main>
-  <div id="drop" class="drop compact" tabindex="0" role="button" hidden>
-    <input id="file" type="file" accept=".xlsx,.xlsm,.xls" hidden>
+  <div id="drop" class="drop" tabindex="0" role="button" hidden>
+    <b>Перетащите сюда файл еженедельного съёма (.xlsx)</b>
+    <small>или нажмите, чтобы выбрать. Файл читается прямо в браузере и никуда не отправляется.</small>
   </div>
-
-  <div id="msgs"></div>
+  <input id="file" type="file" accept=".xlsx,.xlsm,.xls" hidden>
 
   <div id="app" hidden>
-    <div class="bar">
-      <label for="week">Неделя</label>
-      <select id="week"></select>
+    <div class="toolbar">
+      <div class="seg" id="perSeg" role="group" aria-label="Период">
+        <button type="button" data-p="week">Неделя</button>
+        <button type="button" data-p="month">Месяц</button>
+        <button type="button" data-p="quarter">Квартал</button>
+      </div>
+      <select id="week" aria-label="Период"></select>
       <label for="prev">сравнить с</label>
       <select id="prev"></select>
-      <span class="spacer"></span>
-      <button id="previewBtn" type="button" title="Построить картинки по файлу с компьютера — на сайт он не попадёт">Предпросмотр файла…</button>
-      <button id="zip" class="primary">Скачать все 12 PNG (zip)</button>
+      <details class="res" id="resBox">
+        <summary>Ресурсы <small id="resCount"></small></summary>
+        <div class="pop" id="resCols"></div>
+      </details>
+      <input id="q" class="search" type="search" placeholder="Найти паблик" list="names" autocomplete="off" aria-label="Найти паблик">
+      <datalist id="names"></datalist>
     </div>
+    <div id="msgs"></div>
 
-    <details class="res" id="resBox">
-      <summary>Ресурсы в рейтинге <span id="resCount" style="font-weight:500;color:var(--muted)"></span></summary>
-      <div class="cols" id="resCols"></div>
-    </details>
+    <div class="tabsrow"><div class="tabs" role="tablist" id="tabs"></div></div>
+    <section class="kpis" id="kpis" aria-label="Итоги"></section>
 
-    <div id="charts"></div>
+    <div class="sec-h"><h2 id="rankTitle">Рейтинг</h2><span id="rankSub"></span>
+      <span class="spacer"></span>
+      <div class="seg" id="sortSeg">Сортировка:
+        <button type="button" data-sort="value" aria-pressed="true">по значению</button>
+        <button type="button" data-sort="delta" aria-pressed="false">по изменению</button>
+      </div>
+    </div>
+    <section class="ranks" id="ranks"></section>
+
+    <div class="sec-h"><h2 id="mxTitle">Редакции × площадки</h2><span id="mxSub"></span></div>
+    <section class="panel"><div class="mx-wrap" id="matrix"></div></section>
+
+    <div class="sec-h"><h2 id="trendTitle">Динамика</h2><span>сумма по выбранным пабликам · клик по точке — открыть период · полая точка — неполные данные</span></div>
+    <section class="trend" id="trend"></section>
+
+    <footer>
+      ER — лайки ÷ подписчики ÷ число дней × 100%: какая доля подписчиков в среднем ставит лайк за день (аналог ER Page).
+      Просмотры на пост — просмотры ÷ число публикаций. Подписчики — на конец периода (у месяца и квартала — на конец последней недели).
+      Δ в итогах площадок считается по сопоставимым пабликам — тем, что есть в обоих периодах.
+      ▲▼ — смена места к периоду сравнения; «нов.» — паблика не было; «н/д» — был, но метрики за тот период нет.
+      Месяц и квартал собираются из недель: неделя относится к месяцу, в который попадает её четверг.
+    </footer>
   </div>
-
-  <footer>
-    ER — лайки за неделю ÷ подписчики ÷ 7 × 100%: какая доля подписчиков в среднем ставит лайк за день (аналог ER Page). Подписчики — прирост за неделю.
-    Δ и смена места — к выбранной неделе сравнения, по тем же ресурсам.
-  </footer>
 </main>
+<div id="drawerRoot"></div>
 <div class="tip" id="tip"></div>
 
 <script>
@@ -137,27 +304,36 @@ const LOGO_SRC = 'data:image/png;base64,__LOGO__';
 
 // ---------- конфигурация ----------
 const PLATFORMS = [
-  {key:'ВКонтакте', label:'ВКонтакте', short:'VK'},
-  {key:'МАКС',      label:'МАКС',      short:'MAX'},
-  {key:'Telegram',  label:'Telegram',  short:'TG'},
-  {key:'Одноклассники', label:'Одноклассники', short:'OK'},
+  {key:'ВКонтакте', label:'ВКонтакте', short:'VK', abbr:'ВК', css:'--s-vk'},
+  {key:'МАКС',      label:'МАКС',      short:'MAX', abbr:'МАКС', css:'--s-max'},
+  {key:'Telegram',  label:'Telegram',  short:'TG', abbr:'ТГ', css:'--s-tg'},
+  {key:'Одноклассники', label:'Одноклассники', short:'OK', abbr:'ОК', css:'--s-ok'},
 ];
+// порядок здесь = порядок картинок для рассылки (export:true)
 const METRICS = [
-  {key:'growth', title:'Прирост подписчиков', file:'subscribers', unit:'чел. за неделю', diverging:true},
-  {key:'er',     title:'ER',                  file:'ER',         unit:'% подписчиков в день'},
-  {key:'views',  title:'Просмотры',           file:'views',  unit:'за неделю'},
+  {key:'growth', title:'Прирост подписчиков', tab:'Прирост подписчиков', file:'subscribers', unit:'чел. за неделю', hero:'прирост подписчиков', diverging:true, export:true, kind:'was'},
+  {key:'er',     title:'ER',                  tab:'ER',                  file:'ER',          unit:'% подписчиков в день', hero:'ER в день', export:true, kind:'pp'},
+  {key:'views',  title:'Просмотры',           tab:'Просмотры',           file:'views',       unit:'за неделю', hero:'просмотров', export:true, kind:'pct', additive:true},
+  {key:'subs',   title:'Подписчики',          tab:'Подписчики',          file:'followers',   unit:'подписчиков на конец недели', hero:'подписчиков', export:false, kind:'pct'},
+  {key:'vpp',    title:'Просмотры на пост',   tab:'На пост',             file:'per_post',    unit:'просмотров на публикацию', hero:'просмотров на пост', export:false, kind:'pct'},
 ];
+const TAB_ORDER = ['views','vpp','er','subs','growth'];
 const MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const MONTHS_NOM = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const PER_LABEL = {week:'неделя', month:'месяц', quarter:'квартал'};
 
-// цвета картинки (всегда светлая — её пересылают)
+// цвета экспортируемой картинки (всегда светлая — её пересылают)
 const IMG = {bg:'#ffffff', band:'#001b39', bandSub:'#8fd3f2', ink:'#0f1b2d', ink2:'#4a5568', muted:'#7a8699',
   grid:'#e6ebf1', pos:'#0096d6', neg:'#e0662f', good:'#2e8b3e', bad:'#d03b3b', zebra:'#f6f8fb'};
 
 // ---------- состояние ----------
-const S = {weeks:[], published:null, mode:'none', wbName:'', excluded:loadExcluded(), cur:null, prev:null, renders:[]};
-
+const S = {raw:[], weeks:[], published:null, mode:'none', excluded:loadExcluded(), cur:null, prev:null,
+  period:'week', metric:loadPref('ym-metric','views'), sort:'value', card:null, cardMetric:null, q:'', mxSort:'total'};
+if(!TAB_ORDER.includes(S.metric)) S.metric = 'views';
 function loadExcluded(){ try{ return new Set(JSON.parse(localStorage.getItem('ym-rating-excluded')||'[]')); }catch(e){ return new Set(); } }
 function saveExcluded(){ try{ localStorage.setItem('ym-rating-excluded', JSON.stringify([...S.excluded])); }catch(e){} }
+function loadPref(k, d){ try{ return localStorage.getItem(k) || d; }catch(e){ return d; } }
+function savePref(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
 
 // ---------- утилиты ----------
 const nf0 = new Intl.NumberFormat('ru-RU',{maximumFractionDigits:0});
@@ -165,58 +341,166 @@ const nf2 = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:2,maximumFracti
 const nf1 = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1});
 const signed = (v, f) => (v > 0 ? '+' : v < 0 ? '−' : '') + f(Math.abs(v));
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-
+const $ = id => document.getElementById(id);
+const metricOf = k => METRICS.find(m => m.key === k);
+const color = p => `var(${p.css})`;
+const pad = n => String(n).padStart(2,'0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 function humanRange(w){
   const a = w.start, b = w.end;
   if(a.getMonth() === b.getMonth()) return `${a.getDate()}–${b.getDate()} ${MONTHS[b.getMonth()]} ${b.getFullYear()}`;
   return `${a.getDate()} ${MONTHS[a.getMonth()]} – ${b.getDate()} ${MONTHS[b.getMonth()]} ${b.getFullYear()}`;
 }
-const pad = n => String(n).padStart(2,'0');
 const shortRange = w => w.start.getMonth()===w.end.getMonth()
   ? `${pad(w.start.getDate())}–${pad(w.end.getDate())}.${pad(w.end.getMonth()+1)}`
   : `${pad(w.start.getDate())}.${pad(w.start.getMonth()+1)}–${pad(w.end.getDate())}.${pad(w.end.getMonth()+1)}`;
-
-// ---------- рейтинги ----------
-function key(p, n){ return p + '|' + n; }
-function rankList(week, platform, metric){
-  if(!week) return [];
-  return week.items
-    .filter(x => x.platform === platform && !S.excluded.has(key(platform, x.name)) && x[metric] != null)
-    .sort((a,b) => b[metric] - a[metric] || a.name.localeCompare(b.name,'ru'))
-    .map((x,i) => ({...x, value:x[metric], rank:i+1}));
-}
-function buildSpec(platform, metric){
-  const cur = rankList(S.cur, platform.key, metric.key);
-  const prevList = rankList(S.prev, platform.key, metric.key);
-  const prevMap = new Map(prevList.map(x => [x.name, x]));
-  const rows = cur.map(x => {
-    const p = prevMap.get(x.name);
-    let delta = null;
-    if(p){
-      if(metric.key === 'views') delta = p.value ? (x.value - p.value) / p.value * 100 : null;
-      else delta = x.value - p.value;
-    }
-    const inPrev = !!(S.prev && S.prev.items.some(y => y.platform === platform.key && y.name === x.name));
-    return {...x, prevValue: p ? p.value : null, prevRank: p ? p.rank : null, inPrev, delta, raw:x};
-  });
-  return {platform, metric, rows, week:S.cur, prev:S.prev};
+const labelOf = w => w.label || humanRange(w);
+const lowerFirst = t => S.period === 'month' ? t.charAt(0).toLowerCase() + t.slice(1) : t;
+const shortOf = w => w.short || shortRange(w);
+const fileTag = w => shortOf(w).replace('–','-').replace(/\s+/g,'_');
+function compact(v){
+  const a = Math.abs(v);
+  if(a >= 1e6) return nf1.format(v/1e6).replace(',0','') + ' млн';
+  if(a >= 1e4) return nf0.format(v/1e3) + ' тыс.';
+  return nf0.format(v);
 }
 function fmtValue(metric, v){
   if(metric.key === 'er') return nf2.format(v) + ' %';
   if(metric.key === 'growth') return signed(v, nf0.format);
   return nf0.format(v);
 }
+function fmtTick(metric, v){
+  if(metric.key === 'er') return nf2.format(v).replace(/,?0+$/,'') + '%';
+  if(metric.key === 'growth') return signed(v, nf0.format);
+  return compact(v);
+}
+function dir(v, digits){ if(v == null) return 'flat'; const r = +v.toFixed(digits); return r > 0 ? 'up' : r < 0 ? 'down' : 'flat'; }
+function plural(n){ const a = n % 10, b = n % 100; return (a === 1 && b !== 11) ? '' : (a >= 2 && a <= 4 && (b < 12 || b > 14)) ? 'а' : 'ов'; }
+const unitOf = m => S.period === 'week' ? m.unit : m.unit.replace('за неделю', 'за ' + (S.period === 'month' ? 'месяц' : 'квартал')).replace('конец недели', 'конец ' + (S.period === 'month' ? 'месяца' : 'квартала'));
+const perWord = () => S.period === 'week' ? 'неделе' : S.period === 'month' ? 'месяцу' : 'кварталу';
+
+// ---------- данные и периоды ----------
+function enrich(x){ x.vpp = (x.views != null && x.pubs) ? x.views / x.pubs : null; if(x.days == null) x.days = 7; return x; }
+function thursday(w){ const d = new Date(w.start); d.setDate(d.getDate() + 3); return d; }
+function buildPeriods(weeks, kind){
+  if(kind === 'week') return weeks;
+  const groups = new Map();
+  for(const w of weeks){
+    const t = thursday(w), q = Math.floor(t.getMonth() / 3);
+    const k = kind === 'month' ? `${t.getFullYear()}-${pad(t.getMonth()+1)}` : `${t.getFullYear()}-Q${q+1}`;
+    if(!groups.has(k)) groups.set(k, {t, weeks:[]});
+    groups.get(k).weeks.push(w);
+  }
+  return [...groups.values()].map(g => {
+    const ws = g.weeks, y = g.t.getFullYear(), mo = g.t.getMonth(), q = Math.floor(mo / 3);
+    const from = kind === 'month' ? new Date(y, mo, 1) : new Date(y, q*3, 1);
+    const to = kind === 'month' ? new Date(y, mo + 1, 0) : new Date(y, q*3 + 3, 0);
+    let exp = 0; for(let d = new Date(from); d <= to; d.setDate(d.getDate() + 1)) if(d.getDay() === 4) exp++;
+    const base = kind === 'month' ? `${MONTHS_NOM[mo]} ${y}` : `${['I','II','III','IV'][q]} квартал ${y}`;
+    const partial = ws.length < exp;
+    const map = new Map();
+    for(const w of ws) for(const x of w.items){
+      const k = x.platform + '|' + x.name;
+      if(!map.has(k)) map.set(k, {platform:x.platform, name:x.name, pubs:null, views:null, likes:null, subs:null, growth:null, days:0, _likeW:0});
+      const a = map.get(k);
+      const add = f => { if(x[f] != null) a[f] = (a[f] || 0) + x[f]; };
+      add('pubs'); add('views'); add('likes'); add('growth');
+      if(x.subs != null) a.subs = x.subs;                 // подписчики — на конец периода
+      if(x.likes != null && x.subs) a._likeW++;
+    }
+    const items = [...map.values()].map(a => {
+      a.days = 7 * a._likeW; delete a._likeW;
+      a.er = (a.likes != null && a.subs && a.days) ? a.likes / a.subs / a.days * 100 : null;
+      return enrich(a);
+    });
+    return {kind, start:ws[0].start, end:ws[ws.length-1].end, nWeeks:ws.length, expWeeks:exp, partial, items,
+      label: base + (partial ? ` (${ws.length} из ${exp} нед.)` : ''), short: kind === 'month' ? `${pad(mo+1)}.${y}` : `Q${q+1} ${y}`, sheet:''};
+  });
+}
+// суммы (просмотры, прирост) сравнимы только между периодами одинаковой длины
+const sumsComparable = () => !S.prev || (S.cur.nWeeks || 1) === (S.prev.nWeeks || 1);
+
+// ---------- расчёты ----------
+const key = (p, n) => p + '|' + n;
+const included = x => !S.excluded.has(key(x.platform, x.name));
+function agg(items){
+  const a = {n:items.length, views:0, likes:0, subs:0, growth:0, pubs:0, nViews:0, nGrowth:0, erL:0, erS:0, vV:0, vP:0};
+  for(const x of items){
+    if(x.views != null){ a.views += x.views; a.nViews++; }
+    if(x.likes != null) a.likes += x.likes;
+    if(x.subs != null) a.subs += x.subs;
+    if(x.pubs != null) a.pubs += x.pubs;
+    if(x.growth != null){ a.growth += x.growth; a.nGrowth++; }
+    if(x.likes != null && x.subs){ a.erL += x.likes; a.erS += x.subs * (x.days || 7); }
+    if(x.views != null && x.pubs){ a.vV += x.views; a.vP += x.pubs; }
+  }
+  a.er = a.erS ? a.erL / a.erS * 100 : null;
+  a.vpp = a.vP ? a.vV / a.vP : null;
+  if(!a.nViews) a.views = null;
+  if(!a.nGrowth) a.growth = null;
+  return a;
+}
+function itemsOf(week, pkey){ return week ? week.items.filter(x => (!pkey || x.platform === pkey) && included(x)) : []; }
+// итог периода + Δ по сопоставимому периметру (паблики, что есть в обоих периодах)
+function summary(pkey, m){
+  const cur = itemsOf(S.cur, pkey), A = agg(cur);
+  const out = {A, n:cur.length, value:A[m.key], delta:null};
+  if(!S.prev) return out;
+  const pmap = new Map(itemsOf(S.prev, pkey).map(x => [key(x.platform, x.name), x]));
+  const has = x => m.key === 'er' ? (x.likes != null && x.subs) : m.key === 'vpp' ? (x.views != null && x.pubs) : x[m.key] != null;
+  const both = cur.filter(x => { const p = pmap.get(key(x.platform, x.name)); return p && has(x) && has(p); });
+  const C = agg(both), P = agg(both.map(x => pmap.get(key(x.platform, x.name))));
+  if(m.kind === 'pct'){
+    if(m.additive && !sumsComparable()) return out;
+    if(P[m.key]) out.delta = (C[m.key] - P[m.key]) / P[m.key] * 100;
+  } else if(m.kind === 'pp'){ if(C.er != null && P.er != null) out.delta = C.er - P.er; }
+  else if(sumsComparable()) out.delta = P.growth;          // «было»
+  return out;
+}
+function rankList(week, pkey, mkey){
+  if(!week) return [];
+  return week.items
+    .filter(x => x.platform === pkey && included(x) && x[mkey] != null)
+    .sort((a,b) => b[mkey] - a[mkey] || a.name.localeCompare(b.name,'ru'))
+    .map((x,i) => ({...x, value:x[mkey], rank:i+1}));
+}
+function buildSpec(platform, metric){
+  const cur = rankList(S.cur, platform.key, metric.key);
+  const prevMap = new Map(rankList(S.prev, platform.key, metric.key).map(x => [x.name, x]));
+  const prevNames = new Set(S.prev ? S.prev.items.filter(y => y.platform === platform.key).map(y => y.name) : []);
+  const sums = sumsComparable();
+  const rows = cur.map(x => {
+    const p = prevMap.get(x.name);
+    let delta = null, prevValue = p ? p.value : null;
+    if(p){
+      if(metric.kind === 'pct') delta = (metric.additive && !sums) ? null : (p.value ? (x.value - p.value) / p.value * 100 : null);
+      else if(metric.kind === 'pp') delta = x.value - p.value;
+      else if(!sums) prevValue = null;
+      else delta = x.value - p.value;
+    }
+    return {...x, prevValue, prevRank: p ? p.rank : null, inPrev: prevNames.has(x.name), delta, raw:x};
+  });
+  return {platform, metric, rows, week:S.cur, prev:S.prev};
+}
+// знаков после запятой у Δ в %: у подписчиков изменения за период маленькие
+const pd = m => m.key === 'subs' ? 2 : 1;
+const pctFmt = m => pd(m) === 2 ? nf2.format : nf1.format;
 function fmtDelta(metric, row){
   if(row.prevValue == null) return '';
-  if(metric.key === 'views') return row.delta == null ? '' : signed(row.delta, nf1.format) + ' %';
-  if(metric.key === 'er') return signed(row.delta, nf2.format) + ' п.п.';
+  if(metric.kind === 'pct') return row.delta == null ? '' : signed(+row.delta.toFixed(pd(metric)), pctFmt(metric)) + ' %';
+  if(metric.kind === 'pp') return signed(row.delta, nf2.format) + ' п.п.';
   return 'было ' + signed(row.prevValue, nf0.format);
 }
+function moveOf(r){
+  if(!S.prev) return {cls:'flat', t:''};
+  if(r.prevRank == null) return r.inPrev ? {cls:'na', t:'н/д'} : {cls:'na', t:'нов.'};
+  const d = r.prevRank - r.rank;
+  return d > 0 ? {cls:'up', t:'▲' + d} : d < 0 ? {cls:'down', t:'▼' + (-d)} : {cls:'flat', t:'—'};
+}
 
-// ---------- отрисовка картинки ----------
+// ---------- экспортируемая картинка (формат не менять) ----------
 let logoImg = null;
 function loadLogo(){ return new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = LOGO_SRC; }); }
-
 const L = {W:1600, band:150, head:54, row:34, foot:84, padX:48};
 function draw(canvas, spec){
   const {rows, metric, platform} = spec;
@@ -226,40 +510,29 @@ function draw(canvas, spec){
   const g = canvas.getContext('2d');
   g.textBaseline = 'middle';
   g.fillStyle = IMG.bg; g.fillRect(0,0,L.W,H);
-
-  // шапка
   g.fillStyle = IMG.band; g.fillRect(0,0,L.W,L.band);
   if(logoImg) g.drawImage(logoImg, L.padX - 8, (L.band-112)/2, 112, 112);
   const tx = L.padX + 112 + 12;
   g.fillStyle = '#fff'; g.font = '800 46px Manrope';
   g.fillText(`${platform.label} · ${metric.title}`, tx, 58);
   g.fillStyle = IMG.bandSub; g.font = '600 24px Manrope';
-  g.fillText(`Рейтинг пабликов Ямал-Медиа · ${humanRange(spec.week)}`, tx, 104);
-
-  // колонки
-  const xRank = L.padX + 34;          // правый край номера места
-  const xMove = L.padX + 52;          // левый край смены места
-  const xName = L.padX + 440;         // правый край названия
-  const xDeltaR = L.W - L.padX;       // правый край Δ
-  const deltaW = 200;
-  const valW = 150;
+  g.fillText(`Рейтинг пабликов Ямал-Медиа · ${labelOf(spec.week)}`, tx, 104);
+  const xRank = L.padX + 34, xMove = L.padX + 52, xName = L.padX + 440, xDeltaR = L.W - L.padX;
+  const deltaW = 200, valW = 150;
   let p0 = xName + 24, p1 = xDeltaR - deltaW - valW;
   const vals = rows.map(r => r.value);
   let lo = Math.min(0, ...vals), hi = Math.max(0, ...vals);
   if(hi === lo) hi = lo + 1;
-  if(lo < 0) p0 += valW - 20;         // место для подписи отрицательного столбца
+  if(lo < 0) p0 += valW - 20;
   const x = v => p0 + (v - lo) / (hi - lo) * (p1 - p0);
   const x0 = x(0);
-
   const yHead = L.band + L.head/2 + 4;
   g.font = '600 18px Manrope'; g.fillStyle = IMG.muted;
   g.textAlign = 'right'; g.fillText('место', xRank + 10, yHead);
   g.fillText('паблик', xName, yHead);
-  g.textAlign = 'left'; g.fillText(metric.unit, metric.diverging ? x0 + 8 : p0, yHead);
-  if(spec.prev){ g.textAlign = 'right'; g.fillText('к ' + shortRange(spec.prev), xDeltaR, yHead); }
-
+  g.textAlign = 'left'; g.fillText(unitOf(metric), metric.diverging ? x0 + 8 : p0, yHead);
+  if(spec.prev){ g.textAlign = 'right'; g.fillText('к ' + shortOf(spec.prev), xDeltaR, yHead); }
   const top = L.band + L.head;
-  spec.hit = [];
   if(!rows.length){
     g.textAlign = 'left'; g.fillStyle = IMG.muted; g.font = '500 22px Manrope';
     g.fillText('Нет данных по выбранным ресурсам', p0, top + L.row/2);
@@ -267,10 +540,8 @@ function draw(canvas, spec){
   rows.forEach((r, i) => {
     const y = top + i * L.row, cy = y + L.row/2;
     if(i % 2 === 1){ g.fillStyle = IMG.zebra; g.fillRect(L.padX - 16, y, L.W - 2*L.padX + 32, L.row); }
-    // место
     g.textAlign = 'right'; g.font = '700 19px Manrope'; g.fillStyle = IMG.ink2;
     g.fillText(String(r.rank), xRank, cy);
-    // смена места
     g.textAlign = 'left'; g.font = '700 16px Manrope';
     if(spec.prev){
       if(r.prevRank == null){ g.fillStyle = IMG.muted; g.fillText(r.inPrev ? 'н/д' : 'нов.', xMove, cy); }
@@ -281,42 +552,40 @@ function draw(canvas, spec){
         else { g.fillStyle = IMG.muted; g.fillText('—', xMove, cy); }
       }
     }
-    // название
     g.textAlign = 'right'; g.fillStyle = IMG.ink; g.font = '600 20px Manrope';
     g.fillText(fitText(g, r.name, xName - xMove - 70), xName, cy);
-    // столбец
     const xv = x(r.value), bh = 20;
     const a = Math.min(x0, xv), w = Math.max(Math.abs(xv - x0), r.value === 0 ? 0 : 2);
     g.fillStyle = r.value < 0 ? IMG.neg : IMG.pos;
     roundBar(g, a, cy - bh/2, w, bh, 4, r.value < 0 ? 'left' : 'right');
-    // значение
     g.fillStyle = IMG.ink; g.font = '700 19px Manrope';
     if(r.value < 0){ g.textAlign = 'right'; g.fillText(fmtValue(metric, r.value), xv - 8, cy); }
     else { g.textAlign = 'left'; g.fillText(fmtValue(metric, r.value), xv + 8, cy); }
-    // Δ
     const dt = fmtDelta(metric, r);
     if(dt){
       g.textAlign = 'right'; g.font = '600 17px Manrope';
-      const pos = metric.key === 'growth' ? null : +r.delta.toFixed(metric.key === 'er' ? 2 : 1);
+      const pos = metric.key === 'growth' ? null : +r.delta.toFixed(metric.key === 'er' ? 2 : pd(metric));
       g.fillStyle = pos == null ? IMG.ink2 : pos > 0 ? IMG.good : pos < 0 ? IMG.bad : IMG.ink2;
       g.fillText(dt, xDeltaR, cy);
     }
-    spec.hit.push({y0:y, y1:y + L.row, row:r});
   });
-  // нулевая линия
-  if(metric.diverging && rows.length){
-    g.fillStyle = IMG.ink2; g.fillRect(Math.round(x0) - 1, top - 4, 2, n * L.row + 8);
-  }
-  // подвал
+  if(metric.diverging && rows.length){ g.fillStyle = IMG.ink2; g.fillRect(Math.round(x0) - 1, top - 4, 2, n * L.row + 8); }
   const fy = top + n * L.row + 30;
   g.textAlign = 'left'; g.fillStyle = IMG.muted; g.font = '500 17px Manrope';
+  const wk = S.period === 'week';
   const notes = {
-    er: 'ER — лайки за неделю ÷ подписчики ÷ 7 × 100%: доля подписчиков, ставящих лайк за день.',
-    views: 'Просмотры публикаций недели. Δ — изменение к прошлой неделе.',
-    growth: 'Прирост числа подписчиков за неделю. «было» — прирост прошлой недели.',
+    er: wk ? 'ER — лайки за неделю ÷ подписчики ÷ 7 × 100%: доля подписчиков, ставящих лайк за день.' : 'ER — лайки за период ÷ подписчики ÷ число дней × 100%: доля подписчиков, ставящих лайк за день.',
+    views: wk ? 'Просмотры публикаций недели. Δ — изменение к прошлой неделе.' : `Просмотры публикаций за период. Δ — изменение к прошлому ${S.period === 'month' ? 'месяцу' : 'кварталу'}.`,
+    vpp: wk ? 'Просмотры на пост — просмотры недели ÷ число публикаций. Δ — изменение к прошлой неделе.' : `Просмотры на пост — просмотры за период ÷ число публикаций. Δ — изменение к прошлому ${S.period === 'month' ? 'месяцу' : 'кварталу'}.`,
+    subs: wk ? 'Подписчики на конец недели. Δ — изменение к прошлой неделе.' : `Подписчики на конец периода. Δ — изменение к прошлому ${S.period === 'month' ? 'месяцу' : 'кварталу'}.`,
+    growth: wk ? 'Прирост числа подписчиков за неделю. «было» — прирост прошлой недели.' : 'Прирост числа подписчиков за период. «было» — прирост прошлого периода.',
   };
   g.fillText(notes[metric.key], L.padX, fy);
-  g.fillText(rows.some(r => r.prevRank == null && r.inPrev) ? '▲▼ — смена места к прошлой неделе · н/д — за прошлую неделю нет данных' : '▲▼ — смена места в рейтинге к прошлой неделе', L.padX, fy + 28);
+  const nd = rows.some(r => r.prevRank == null && r.inPrev);
+  const mvNote = wk
+    ? (nd ? '▲▼ — смена места к прошлой неделе · н/д — за прошлую неделю нет данных' : '▲▼ — смена места в рейтинге к прошлой неделе')
+    : (nd ? '▲▼ — смена места к прошлому периоду · н/д — за прошлый период нет данных' : '▲▼ — смена места в рейтинге к прошлому периоду');
+  g.fillText(mvNote, L.padX, fy + 28);
   g.textAlign = 'right'; g.fillText('Ямал-Медиа · аналитика', L.W - L.padX, fy + 28);
 }
 function fitText(g, t, maxW){
@@ -336,90 +605,398 @@ function roundBar(g, x, y, w, h, r, side){
   }
   g.closePath(); g.fill();
 }
-
-// ---------- страница ----------
-const $ = id => document.getElementById(id);
-function showMsgs(list){
-  $('msgs').innerHTML = list.map(m => `<div class="msg ${m.t}">${m.html}</div>`).join('');
-}
-function fileName(i, spec){
-  return `${pad(i+1)}_${spec.platform.short}_${spec.metric.file}_${shortRange(spec.week).replace('–','-')}.png`;
-}
-function renderAll(){
-  const box = $('charts'); box.innerHTML = ''; S.renders = [];
-  let i = 0;
-  for(const p of PLATFORMS){
-    const h = document.createElement('div'); h.className = 'platform'; h.textContent = p.label; box.appendChild(h);
-    const grid = document.createElement('div'); grid.className = 'grid'; box.appendChild(grid);
-    for(const m of METRICS){
-      const spec = buildSpec(p, m);
-      const card = document.createElement('div'); card.className = 'card';
-      const cv = document.createElement('canvas');
-      cv.setAttribute('role','img'); cv.setAttribute('aria-label', `${p.label}, ${m.title}: рейтинг`);
-      draw(cv, spec);
-      const name = fileName(i, spec);
-      card.appendChild(cv);
-      const act = document.createElement('div'); act.className = 'act';
-      const btn = document.createElement('button'); btn.textContent = 'PNG';
-      btn.onclick = () => cv.toBlob(b => saveBlob(b, name), 'image/png');
-      act.appendChild(btn);
-      const cap = document.createElement('span'); cap.style.cssText = 'color:var(--muted);font-size:12.5px'; cap.textContent = name;
-      act.appendChild(cap);
-      card.appendChild(act);
-      card.appendChild(tableFor(spec));
-      grid.appendChild(card);
-      attachTip(cv, spec);
-      S.renders.push({cv, name});
-      i++;
-    }
+function allSpecs(){
+  const out = []; let i = 0;
+  for(const p of PLATFORMS) for(const m of METRICS.filter(m => m.export)){
+    const spec = buildSpec(p, m);
+    out.push({spec, name:`${pad(++i)}_${p.short}_${m.file}_${fileTag(S.cur)}.png`});
   }
+  return out;
 }
-function tableFor(spec){
-  const d = document.createElement('details');
-  const m = spec.metric;
-  const rows = spec.rows.map(r => `<tr><td>${r.rank}</td><td>${esc(r.name)}</td><td>${fmtValue(m, r.value)}</td><td>${r.prevValue == null ? '—' : fmtValue(m, r.prevValue)}</td><td>${r.prevRank ?? '—'}</td><td>${r.raw.likes == null ? '—' : nf0.format(r.raw.likes)}</td><td>${r.raw.subs == null ? '—' : nf0.format(r.raw.subs)}</td></tr>`).join('');
-  d.innerHTML = `<summary>Таблица</summary><table><thead><tr><th>#</th><th>Паблик</th><th>${esc(m.title)}</th><th>пред.</th><th>пред. место</th><th>лайки</th><th>подписч.</th></tr></thead><tbody>${rows}</tbody></table>`;
-  return d;
-}
-function attachTip(cv, spec){
-  const tip = $('tip');
-  cv.addEventListener('mousemove', e => {
-    const rect = cv.getBoundingClientRect();
-    const y = (e.clientY - rect.top) * cv.height / rect.height;
-    const h = spec.hit.find(h => y >= h.y0 && y < h.y1);
-    if(!h){ tip.style.display = 'none'; return; }
-    const r = h.row, m = spec.metric;
-    const parts = [`<b>${r.rank}. ${esc(r.name)}</b>`, `${esc(m.title)}: <span>${fmtValue(m, r.value)}</span>`];
-    if(r.prevValue != null) parts.push(`пред. неделя: ${fmtValue(m, r.prevValue)} (место ${r.prevRank})`);
-    parts.push(`просмотры ${r.raw.views == null ? '—' : nf0.format(r.raw.views)} · лайки ${r.raw.likes == null ? '—' : nf0.format(r.raw.likes)}`);
-    parts.push(`подписчики ${r.raw.subs == null ? '—' : nf0.format(r.raw.subs)} · постов ${r.raw.pubs ?? '—'}`);
-    tip.innerHTML = parts.join('<br>');
-    tip.style.display = 'block';
-    const tx = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 8);
-    const ty = Math.min(e.clientY + 14, window.innerHeight - tip.offsetHeight - 8);
-    tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
-  });
-  cv.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
-}
+const canvasBlob = spec => new Promise(res => { const cv = document.createElement('canvas'); draw(cv, spec); cv.toBlob(res, 'image/png'); });
 function saveBlob(blob, name){
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 async function downloadZip(){
   const zip = new JSZip();
-  for(const r of S.renders){
-    const blob = await new Promise(res => r.cv.toBlob(res, 'image/png'));
-    zip.file(r.name, blob);
-  }
-  const out = await zip.generateAsync({type:'blob'});
-  saveBlob(out, `rating_${shortRange(S.cur).replace('–','-')}.zip`);
+  for(const {spec, name} of allSpecs()) zip.file(name, await canvasBlob(spec));
+  saveBlob(await zip.generateAsync({type:'blob'}), `rating_${fileTag(S.cur)}.zip`);
 }
+async function downloadOne(p, m){
+  if(m.export){
+    const it = allSpecs().find(x => x.spec.platform === p && x.spec.metric === m);
+    saveBlob(await canvasBlob(it.spec), it.name);
+  } else {
+    const spec = buildSpec(p, m);
+    saveBlob(await canvasBlob(spec), `${p.short}_${m.file}_${fileTag(S.cur)}.png`);
+  }
+}
+
+// ---------- Excel ----------
+function downloadXlsx(){
+  const wb = XLSX.utils.book_new();
+  const per = labelOf(S.cur), cmp = S.prev ? labelOf(S.prev) : 'без сравнения';
+  const mkSheet = (title, head, rows, fmts, widths) => {
+    const ws = XLSX.utils.aoa_to_sheet([[title], [`Период: ${per} · сравнение: ${cmp}`], [], head, ...rows]);
+    const R = XLSX.utils.decode_range(ws['!ref']);
+    for(let r = 4; r <= R.e.r; r++) for(let c = 0; c < fmts.length; c++){
+      const cell = ws[XLSX.utils.encode_cell({r, c})]; if(cell && cell.t === 'n' && fmts[c]) cell.z = fmts[c];
+    }
+    ws['!cols'] = widths.map(w => ({wch:w}));
+    return ws;
+  };
+  const N = '#,##0', P1 = '0.0%', D2 = '0.00', SG = '+#,##0;-#,##0;0';
+  // итоги
+  const sumRows = [{label:'Холдинг', p:null}].concat(PLATFORMS.map(p => ({label:p.label, p}))).map(t => {
+    const A = agg(itemsOf(S.cur, t.p ? t.p.key : null));
+    const dv = summary(t.p ? t.p.key : null, metricOf('views')).delta;
+    return [t.label, A.n, A.views, dv == null ? null : dv / 100, A.pubs || null, A.vpp == null ? null : Math.round(A.vpp), A.er == null ? null : +A.er.toFixed(3), A.subs || null, A.growth];
+  });
+  XLSX.utils.book_append_sheet(wb, mkSheet('Итоги по площадкам', ['Площадка','Пабликов','Просмотры','Δ просмотров','Публикаций','Просмотров на пост','ER в день, %','Подписчики','Прирост подписчиков'],
+    sumRows, [null, N, N, P1, N, N, D2, N, SG], [16,10,14,13,12,18,13,13,20]), 'Итоги');
+  // рейтинги по площадкам — по активной метрике, все показатели в строке
+  const m = metricOf(S.metric);
+  for(const p of PLATFORMS){
+    const spec = buildSpec(p, m);
+    const vSpec = new Map(buildSpec(p, metricOf('views')).rows.map(r => [r.name, r]));
+    const eSpec = new Map(buildSpec(p, metricOf('er')).rows.map(r => [r.name, r]));
+    const gSpec = new Map(buildSpec(p, metricOf('growth')).rows.map(r => [r.name, r]));
+    const rows = spec.rows.map(r => {
+      const x = r.raw, v = vSpec.get(r.name), e = eSpec.get(r.name), g = gSpec.get(r.name);
+      return [r.rank, r.prevRank, r.name, x.views, v && v.delta != null ? v.delta / 100 : null, x.pubs, x.vpp == null ? null : Math.round(x.vpp),
+        x.likes, x.er == null ? null : +x.er.toFixed(3), e && e.delta != null ? +e.delta.toFixed(3) : null, x.subs, x.growth, g ? g.prevValue : null];
+    });
+    XLSX.utils.book_append_sheet(wb, mkSheet(`${p.label} · рейтинг: ${m.title}`, ['Место','Место пред.','Паблик','Просмотры','Δ просмотров','Публикаций','Просмотров на пост','Лайки','ER в день, %','Δ ER, п.п.','Подписчики','Прирост','Прирост пред.'],
+      rows, [null, null, null, N, P1, N, N, N, D2, '+0.00;-0.00;0.00', N, SG, SG], [7,11,24,12,13,11,18,9,13,11,12,10,13]), p.abbr);
+  }
+  // матрица
+  const mx = matrixRows(m);
+  XLSX.utils.book_append_sheet(wb, mkSheet(`Редакции × площадки: ${m.title}`, ['Редакция', ...PLATFORMS.map(p => p.abbr), 'Холдинг'],
+    mx.map(r => [r.name, ...r.cells.map(c => c ? (m.key === 'er' ? +c.v.toFixed(3) : Math.round(c.v)) : null), r.total == null ? null : (m.key === 'er' ? +r.total.toFixed(3) : Math.round(r.total))]),
+    [null, ...Array(5).fill(m.key === 'er' ? D2 : m.key === 'growth' ? SG : N)], [24,12,12,12,12,13]), 'Редакции');
+  XLSX.writeFile(wb, `rating_${fileTag(S.cur)}.xlsx`);
+}
+
+// ---------- подсказка, тост ----------
+const tip = $('tip');
+function showTip(html, e){
+  tip.innerHTML = html; tip.style.display = 'block';
+  const x = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 8);
+  const y = Math.min(e.clientY + 14, window.innerHeight - tip.offsetHeight - 8);
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+const hideTip = () => { tip.style.display = 'none'; };
+function toast(t){ const el = document.createElement('div'); el.className = 'toast'; el.textContent = t; document.body.appendChild(el); setTimeout(() => el.remove(), 2200); }
+
+// ---------- линейный график (SVG) ----------
+function niceTicks(lo, hi, n){
+  if(lo === hi){ hi = lo + (lo === 0 ? 1 : Math.abs(lo) * .1); }
+  const span = hi - lo, step0 = span / n, mag = Math.pow(10, Math.floor(Math.log10(step0)));
+  const step = [1,2,2.5,5,10].map(k => k * mag).find(s => span / s <= n) || 10 * mag;
+  const t0 = Math.floor(lo / step) * step, t1 = Math.ceil(hi / step) * step;
+  const out = []; for(let t = t0; t <= t1 + step/2; t += step) out.push(+t.toFixed(10));
+  return out;
+}
+function lineChart({series, xs, cur, metric, width = 420, height = 150, onPick, tipTitle}){
+  const W = Math.max(220, Math.round(width)), H = Math.round(height), ml = 50, mr = 10, mt = 10, mb = 22;
+  const all = series.flatMap(s => s.vals.filter(Boolean).map(v => v.y));
+  const wrap = document.createElement('div');
+  if(!all.length){ wrap.innerHTML = '<div class="empty">нет данных</div>'; return wrap; }
+  let lo = Math.min(...all), hi = Math.max(...all);
+  lo = Math.min(lo, 0); hi = Math.max(hi, 0);
+  const ticks = niceTicks(lo, hi, 3); lo = ticks[0]; hi = ticks[ticks.length-1];
+  const n = xs.length;
+  const X = i => ml + (n === 1 ? (W - ml - mr) / 2 : i * (W - ml - mr) / (n - 1));
+  const Y = v => mt + (hi - v) / (hi - lo) * (H - mt - mb);
+  let s = `<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(tipTitle || '')}">`;
+  if(cur != null) s += `<rect class="curw" x="${X(cur) - 14}" y="${mt}" width="28" height="${H - mt - mb}" rx="4"/>`;
+  for(const t of ticks){ s += `<line class="${t === 0 && lo < 0 ? 'zero' : 'gl'}" x1="${ml}" x2="${W - mr}" y1="${Y(t)}" y2="${Y(t)}"/><text x="${ml - 6}" y="${Y(t) + 4}" text-anchor="end">${fmtTick(metric, t)}</text>`; }
+  const step = Math.ceil(n / 5);
+  xs.forEach((l, i) => { if(i % step === 0 || i === n - 1) s += `<text x="${X(i)}" y="${H - 6}" text-anchor="middle"${i === cur ? ' style="fill:var(--ink);font-weight:700"' : ''}>${esc(l)}</text>`; });
+  for(const se of series){
+    let d = '', pen = false;
+    se.vals.forEach((v, i) => { if(v){ d += (pen ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v.y).toFixed(1); pen = true; } else pen = false; });
+    s += `<path d="${d}" fill="none" stroke="${se.c}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    se.vals.forEach((v, i) => {
+      if(!v) return;
+      const r = i === cur ? 5 : 3.5;
+      s += v.partial
+        ? `<circle cx="${X(i)}" cy="${Y(v.y)}" r="${r}" fill="var(--surface)" stroke="${se.c}" stroke-width="2"/>`
+        : `<circle cx="${X(i)}" cy="${Y(v.y)}" r="${r}" fill="${se.c}" stroke="var(--surface)" stroke-width="1.5"/>`;
+    });
+  }
+  s += `<line class="guide" x1="0" x2="0" y1="${mt}" y2="${H - mb}" style="display:none"/>`;
+  s += `<rect x="${ml - 10}" y="0" width="${W - ml - mr + 20}" height="${H}" fill="transparent" style="cursor:${onPick ? 'pointer' : 'default'}"/></svg>`;
+  wrap.innerHTML = s;
+  const svg = wrap.firstChild, guide = svg.querySelector('.guide'), hit = svg.lastElementChild;
+  const idxAt = e => { const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) * W / r.width; return Math.max(0, Math.min(n - 1, Math.round((px - ml) / ((W - ml - mr) / Math.max(n - 1, 1))))); };
+  hit.addEventListener('mousemove', e => {
+    const i = idxAt(e);
+    guide.setAttribute('x1', X(i)); guide.setAttribute('x2', X(i)); guide.style.display = '';
+    const lines = series.map(se => { const v = se.vals[i]; return `<div><i style="--c:${se.c}"></i>${esc(se.label)}: <span class="k">${v ? fmtValue(metric, v.y) : '—'}</span>${v && v.note ? ` <small>${esc(v.note)}</small>` : ''}</div>`; }).join('');
+    showTip(`<b>${esc(xs[i])}</b>${lines}${onPick && i !== cur ? '<div style="opacity:.7">клик — открыть этот период</div>' : ''}`, e);
+  });
+  hit.addEventListener('mouseleave', () => { guide.style.display = 'none'; hideTip(); });
+  if(onPick) hit.addEventListener('click', e => onPick(idxAt(e)));
+  return wrap;
+}
+
+// ---------- отрисовка ----------
+function renderAll(){
+  renderTabs(); renderKpis(); renderRanks(); renderMatrix(); renderTrend();
+  if(S.card) openCard(S.card, true);
+  writeHash();
+}
+function dHtml(m, v){
+  if(v == null) return '';
+  if(m.kind === 'pct'){ const r = +v.toFixed(pd(m)); return `<span class="d ${dir(v,pd(m))}">${r > 0 ? '▲' : r < 0 ? '▼' : ''} ${pctFmt(m)(Math.abs(r))} %</span>`; }
+  if(m.kind === 'pp') return `<span class="d ${dir(v,2)}">${v > 0 ? '▲' : v < 0 ? '▼' : ''} ${nf2.format(Math.abs(v))} п.п.</span>`;
+  return `<span class="d flat">было ${signed(v, nf0.format)}</span>`;
+}
+function renderTabs(){
+  $('tabs').innerHTML = TAB_ORDER.map(k => `<button role="tab" type="button" data-m="${k}" aria-selected="${S.metric === k}">${esc(metricOf(k).tab)}</button>`).join('');
+  $('tabs').querySelectorAll('button').forEach(b => b.onclick = () => { S.metric = b.dataset.m; savePref('ym-metric', S.metric); renderAll(); });
+  const m = metricOf(S.metric);
+  $('rankTitle').textContent = `${m.title}: рейтинг за ${S.period === 'week' ? humanRange(S.cur) : lowerFirst(labelOf(S.cur))}`;
+  $('mxSub').textContent = (SHARE_WORD[m.key] ? `% — доля площадки в ${SHARE_WORD[m.key]} редакции · ` : '') + 'цвет — место паблика среди своей площадки · клик по заголовку — сортировка';
+  $('rankSub').textContent = S.prev ? `Δ и ▲▼ — к ${S.period === 'week' ? humanRange(S.prev) : lowerFirst(labelOf(S.prev))}` : 'без сравнения';
+  $('mxTitle').textContent = `Редакции × площадки: ${m.title.toLowerCase()}`;
+  $('trendTitle').textContent = `${m.title}: динамика по ${S.period === 'week' ? 'неделям' : S.period === 'month' ? 'месяцам' : 'кварталам'}`;
+  document.querySelectorAll('#perSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.p === S.period));
+}
+// метрики-суммы, для которых показываем долю площадок
+const SHARE_WORD = {views:'просмотрах', subs:'подписчиках'};
+function renderKpis(){
+  const m = metricOf(S.metric);
+  const tiles = [{label:'Холдинг', p:null}].concat(PLATFORMS.map(p => ({label:p.label, p})));
+  $('kpis').innerHTML = tiles.map(t => {
+    const s = summary(t.p ? t.p.key : null, m);
+    let share = '';
+    if(!t.p && SHARE_WORD[m.key] && s.value){
+      const parts = PLATFORMS.map(p => ({p, v: agg(itemsOf(S.cur, p.key))[m.key] || 0}));
+      share = `<div class="share" title="Доля площадок в ${SHARE_WORD[m.key]} холдинга">${parts.map(x => `<i style="--c:${color(x.p)};width:${x.v / s.value * 100}%"></i>`).join('')}</div>
+        <div class="share-l">${parts.map(x => `<span><span class="dot" style="--c:${color(x.p)};width:7px;height:7px"></span>${x.p.abbr} ${nf0.format(x.v / s.value * 100)}%</span>`).join('')}</div>`;
+    }
+    return `<div class="kpi${t.p ? '' : ' total'}" ${t.p ? `style="--c:${color(t.p)}"` : ''}>
+      <div class="kpi-h">${t.p ? '<span class="dot"></span>' : ''}${esc(t.label)}</div>
+      ${s.n ? `<div class="hero"><span class="v">${s.value == null ? '—' : fmtValue(m, s.value)}</span>${dHtml(m, s.delta)}</div>
+      <div class="kpi-sub">${esc(m.hero)} · ${s.n} паблик${plural(s.n)}${m.key === 'subs' ? '' : ` · ${s.A.subs ? nf0.format(s.A.subs) : '—'} подписч.`}</div>${share}`
+      : '<div class="kpi-sub" style="margin-top:8px">нет данных за период</div>'}
+    </div>`;
+  }).join('');
+}
+const matchQ = name => S.q && name.toLowerCase().includes(S.q);
+function renderRanks(){
+  const box = $('ranks'); box.innerHTML = '';
+  const m = metricOf(S.metric);
+  for(const p of PLATFORMS){
+    const spec = buildSpec(p, m);
+    const panel = document.createElement('div'); panel.className = 'panel'; panel.style.setProperty('--c', color(p));
+    const head = document.createElement('div'); head.className = 'rank-h';
+    head.innerHTML = `<h3><span class="dot"></span>${esc(p.label)}</h3><span style="color:var(--muted);font-size:12.5px">${spec.rows.length} паблик${plural(spec.rows.length)} · ${esc(unitOf(m))}</span>`;
+    const pbtn = document.createElement('button'); pbtn.className = 'btn sm'; pbtn.type = 'button'; pbtn.textContent = 'PNG';
+    pbtn.title = 'Скачать эту картинку в формате для рассылки'; pbtn.onclick = () => downloadOne(p, m);
+    head.appendChild(pbtn); panel.appendChild(head);
+    if(!spec.rows.length){ panel.insertAdjacentHTML('beforeend', '<div class="empty">Нет данных по выбранным пабликам за этот период</div>'); box.appendChild(panel); continue; }
+    let rows = spec.rows.slice();
+    if(S.sort === 'delta'){
+      const dv = r => m.key === 'growth' ? (r.prevValue == null ? null : r.value - r.prevValue) : r.delta;
+      rows.sort((a,b) => (dv(b) ?? -Infinity) - (dv(a) ?? -Infinity));
+    }
+    const vals = spec.rows.map(r => r.value);
+    let lo = Math.min(0, ...vals), hi = Math.max(0, ...vals); if(hi === lo) hi = lo + 1;
+    const grid = document.createElement('div'); grid.className = 'rows' + (S.q ? ' dimmed' : '');
+    panel.appendChild(grid); box.appendChild(panel);
+    let padL, padR, pos, z;
+    const setScale = (l, r) => { padL = l; padR = r; pos = v => padL + (v - lo) / (hi - lo) * (100 - padL - padR); z = pos(0); };
+    const paint = () => { grid.innerHTML = `<div class="hd r">#</div><div class="hd"></div><div class="hd">паблик</div><div class="hd"></div><div class="hd r">${S.prev ? 'к ' + esc(shortOf(S.prev)) : ''}</div>` +
+      rows.map(r => {
+        const mv = moveOf(r), v = pos(r.value);
+        const bar = r.value < 0
+          ? `<div class="bar neg" style="left:${v}%;width:${Math.max(z - v, .4)}%"></div><span class="val" style="right:${100 - v + 1}%">${fmtValue(m, r.value)}</span>`
+          : `<div class="bar pos" style="left:${z}%;width:${r.value === 0 ? 0 : Math.max(v - z, .4)}%"></div><span class="val" style="left:calc(${v}% + 6px)">${fmtValue(m, r.value)}</span>`;
+        const dcls = m.key === 'growth' ? 'flat' : dir(r.delta, m.key === 'er' ? 2 : pd(m));
+        return `<div class="row${matchQ(r.name) ? ' hit' : ''}" data-i="${spec.rows.indexOf(r)}"><div class="rk">${r.rank}</div><div class="mv ${mv.cls}">${mv.t}</div>
+          <div><button class="nmb" type="button" data-name="${esc(r.name)}" title="Открыть карточку паблика">${esc(r.name)}</button></div>
+          <div><div class="track">${lo < 0 ? `<div class="zl" style="left:${z}%"></div>` : ''}${bar}</div></div>
+          <div class="dl ${dcls}">${fmtDelta(m, r)}</div></div>`;
+      }).join(''); };
+    setScale(lo < 0 ? 16 : 0, 22); paint();
+    // подгоняем поля под реальную ширину подписей (на узком экране их нужно больше)
+    const tw = grid.querySelector('.track')?.clientWidth || 0;
+    if(tw && tw < 170){
+      // узкая дорожка (телефон): число справа, под ним тонкая полоса
+      grid.classList.add('narrow'); setScale(0, 6); paint();
+    } else if(tw){
+      const fr = v => (v - lo) / (hi - lo);
+      const labW = [...grid.querySelectorAll('.row')].map(el => (el.querySelector('.val')?.offsetWidth || 0) / tw * 100);
+      let needL = lo < 0 ? 16 : 0;
+      rows.forEach((r, i) => { if(r.value < 0) needL = Math.max(needL, labW[i] + 1); });
+      needL = Math.min(needL, 45);
+      let needR = 22;
+      rows.forEach((r, i) => { const f = fr(r.value); if(r.value >= 0 && f > 0){ const L = labW[i] + 600 / tw + 1; needR = Math.max(needR, 100 - needL - (100 - needL - L) / f); } });
+      needR = Math.min(needR, 70);
+      if(needL !== padL || needR !== padR){ setScale(needL, needR); paint(); }
+    }
+    grid.querySelectorAll('.row').forEach(el => {
+      const r = spec.rows[+el.dataset.i];
+      el.addEventListener('mousemove', e => showTip(rowTip(r, m), e));
+      el.addEventListener('mouseleave', hideTip);
+    });
+    grid.querySelectorAll('.nmb').forEach(b => b.onclick = () => { hideTip(); openCard(b.dataset.name); });
+  }
+}
+function rowTip(r, m){
+  const x = r.raw, parts = [`<b>${r.rank}. ${esc(r.name)}</b>`, `${esc(m.title)}: <span class="k">${fmtValue(m, r.value)}</span>`];
+  if(r.prevValue != null) parts.push(`пред. период: ${fmtValue(m, r.prevValue)} (место ${r.prevRank})`);
+  parts.push(`просмотры ${x.views == null ? '—' : nf0.format(x.views)} · постов ${x.pubs ?? '—'} · на пост ${x.vpp == null ? '—' : nf0.format(x.vpp)}`);
+  parts.push(`лайки ${x.likes == null ? '—' : nf0.format(x.likes)} · подписчики ${x.subs == null ? '—' : nf0.format(x.subs)}`);
+  return parts.join('<br>');
+}
+
+// ---------- матрица редакция × площадка ----------
+function matrixRows(m){
+  const names = [...new Set(itemsOf(S.cur).map(x => x.name))];
+  const rows = names.map(name => {
+    const cells = PLATFORMS.map(p => { const x = S.cur.items.find(y => y.platform === p.key && y.name === name && included(y)); return x && x[m.key] != null ? {v:x[m.key], x} : null; });
+    const items = S.cur.items.filter(y => y.name === name && included(y));
+    return {name, cells, total: agg(items)[m.key]};
+  });
+  const col = S.mxSort;
+  const val = r => col === 'total' ? r.total : col === 'name' ? null : (r.cells[col] ? r.cells[col].v : null);
+  if(col === 'name') rows.sort((a,b) => a.name.localeCompare(b.name,'ru'));
+  else rows.sort((a,b) => (val(b) ?? -Infinity) - (val(a) ?? -Infinity) || a.name.localeCompare(b.name,'ru'));
+  return rows;
+}
+function renderMatrix(){
+  const m = metricOf(S.metric), rows = matrixRows(m);
+  // место внутри площадки -> насыщенность
+  const pct = PLATFORMS.map((p, ci) => {
+    const vs = rows.map(r => r.cells[ci] && r.cells[ci].v).filter(v => v != null).sort((a,b) => a - b);
+    return v => vs.length < 2 ? 1 : vs.indexOf(v) / (vs.length - 1);
+  });
+  const tv = rows.map(r => r.total).filter(v => v != null).sort((a,b) => a - b);
+  const tp = v => tv.length < 2 ? 1 : tv.indexOf(v) / (tv.length - 1);
+  const shade = (c, t) => `background:color-mix(in srgb, ${c} ${Math.round(4 + t * 30)}%, transparent)`;
+  const th = (k, html) => `<th data-k="${k}" class="${String(S.mxSort) === String(k) ? 'on' : ''}">${html}${String(S.mxSort) === String(k) ? ' ↓' : ''}</th>`;
+  const showShare = !!SHARE_WORD[m.key];
+  let h = `<table class="mx${S.q ? ' dimmed' : ''}"><thead><tr>${th('name','Редакция')}${PLATFORMS.map((p, i) => th(i, `<span class="dot" style="--c:${color(p)}"></span>${p.abbr}`)).join('')}${th('total','Холдинг')}</tr></thead><tbody>`;
+  h += rows.map(r => `<tr class="${matchQ(r.name) ? 'hit' : ''}"><td><button class="nmb" type="button" data-name="${esc(r.name)}">${esc(r.name)}</button></td>` +
+    r.cells.map((c, i) => c ? `<td style="${shade(color(PLATFORMS[i]), pct[i](c.v))}">${fmtValue(m, c.v)}${showShare && r.total ? `<span class="sh">${nf0.format(c.v / r.total * 100)}%</span>` : ''}</td>` : '<td class="na">—</td>').join('') +
+    `<td class="tot" style="${r.total == null ? '' : shade('var(--accent)', tp(r.total))}">${r.total == null ? '—' : fmtValue(m, r.total)}</td></tr>`).join('');
+  h += '</tbody></table>';
+  const box = $('matrix'); box.innerHTML = h;
+  box.querySelectorAll('th').forEach(t => t.onclick = () => { const k = t.dataset.k; S.mxSort = (k === 'name' || k === 'total') ? k : +k; renderMatrix(); });
+  box.querySelectorAll('.nmb').forEach(b => b.onclick = () => openCard(b.dataset.name));
+}
+
+// ---------- динамика ----------
+function trendSeries(pkey, metric){
+  const has = x => metric.key === 'er' ? (x.likes != null && x.subs) : metric.key === 'vpp' ? (x.views != null && x.pubs) : x[metric.key] != null;
+  const per = S.weeks.map(w => { const items = itemsOf(w, pkey).filter(has); return {y: agg(items)[metric.key], n: items.length, w}; });
+  const max = Math.max(...per.map(v => v.n));
+  return per.map(v => v.y == null || !v.n ? null : {y:v.y, partial: v.n < max || !!v.w.partial,
+    note: (v.w.partial ? 'неполный период · ' : '') + (v.n < max ? `данные по ${v.n} из ${max}` : `${v.n} паблик${plural(v.n)}`)});
+}
+function renderTrend(){
+  const box = $('trend'); box.innerHTML = '';
+  const m = metricOf(S.metric), ci = S.weeks.indexOf(S.cur), xs = S.weeks.map(shortOf), later = [];
+  for(const p of PLATFORMS){
+    const vals = trendSeries(p.key, m);
+    const panel = document.createElement('div'); panel.className = 'panel'; panel.style.setProperty('--c', color(p));
+    const now = vals[ci];
+    panel.innerHTML = `<h3><span class="dot"></span>${esc(p.label)}<span class="now">${now ? fmtValue(m, now.y) : '—'}</span></h3>`;
+    box.appendChild(panel);
+    later.push(() => { const w = panel.clientWidth - 24;
+      panel.appendChild(lineChart({series:[{label:p.label, c:color(p), vals}], xs, cur:ci, metric:m, width:w, height:Math.max(130, w * .48), onPick:i => pickWeek(i), tipTitle:`${p.label}: ${m.title}`})); });
+  }
+  later.forEach(f => f());
+  if(SHARE_WORD[m.key]) box.appendChild(sharePanel(m));
+}
+function sharePanel(m){
+  const panel = document.createElement('div'); panel.className = 'panel wide';
+  const ci = S.weeks.indexOf(S.cur);
+  const data = S.weeks.map(w => { const parts = PLATFORMS.map(p => ({p, v: agg(itemsOf(w, p.key))[m.key] || 0})); return {w, parts, tot: parts.reduce((s,x) => s + x.v, 0)}; });
+  panel.innerHTML = `<h3>Доля площадок в ${SHARE_WORD[m.key]} холдинга</h3><div class="sub">${PLATFORMS.map(p => `<span style="white-space:nowrap;margin-right:12px"><span class="dot" style="--c:${color(p)}"></span> ${p.label}</span>`).join('')}</div>
+    <div class="stk">${data.map((d, i) => `<div class="lb${i === ci ? ' on' : ''}">${esc(shortOf(d.w))}</div><div class="bars" data-i="${i}">${d.parts.map(x => `<i style="--c:${color(x.p)};width:${d.tot ? x.v / d.tot * 100 : 0}%"></i>`).join('')}</div><div class="tt">${compact(d.tot)}</div>`).join('')}</div>`;
+  panel.querySelectorAll('.bars').forEach(el => {
+    const d = data[+el.dataset.i];
+    el.addEventListener('mousemove', e => showTip(`<b>${esc(labelOf(d.w))}</b>` + d.parts.map(x => `<div><i style="--c:${color(x.p)}"></i>${x.p.label}: <span class="k">${d.tot ? nf1.format(x.v / d.tot * 100) : 0}%</span> · ${nf0.format(x.v)}</div>`).join(''), e));
+    el.addEventListener('mouseleave', hideTip);
+  });
+  return panel;
+}
+function pickWeek(i){
+  if(i === S.weeks.indexOf(S.cur)) return;
+  S.cur = S.weeks[i]; S.prev = prevOf(S.cur); hideTip();
+  fillSelects(); renderResources(); renderAll();
+}
+
+// ---------- карточка паблика ----------
+function openCard(name, refresh){
+  S.card = name;
+  const root = $('drawerRoot');
+  const ci = S.weeks.indexOf(S.cur), xs = S.weeks.map(shortOf);
+  const where = PLATFORMS.filter(p => S.weeks.some(w => w.items.some(x => x.platform === p.key && x.name === name)));
+  const sums = sumsComparable();
+  const rowsHtml = where.map(p => {
+    const x = S.cur.items.find(y => y.platform === p.key && y.name === name);
+    const pv = S.prev && S.prev.items.find(y => y.platform === p.key && y.name === name);
+    const dot = `<span class="dot" style="--c:${color(p)};margin-right:6px"></span>${esc(p.label)}`;
+    if(!x) return `<tr><td>${dot}</td><td colspan="5" style="color:var(--muted);text-align:left">нет данных за период</td></tr>`;
+    const rk = k => { const l = rankList(S.cur, p.key, k); const r = l.find(y => y.name === name); return r ? `<small class="pl">место ${r.rank} из ${l.length}</small>` : ''; };
+    const pctD = (a, b, ok) => (ok && a != null && b) ? (a - b) / b * 100 : null;
+    const dv = pctD(x.views, pv && pv.views, sums), dp = pctD(x.vpp, pv && pv.vpp, true);
+    const de = (x.er != null && pv && pv.er != null) ? x.er - pv.er : null;
+    return `<tr><td>${dot}</td>
+      <td>${x.views == null ? '—' : nf0.format(x.views)}${dv == null ? '' : `<small class="d ${dir(dv,1)}">${signed(dv, nf1.format)} %</small>`}${rk('views')}</td>
+      <td>${x.vpp == null ? '—' : nf0.format(x.vpp)}${dp == null ? '' : `<small class="d ${dir(dp,1)}">${signed(dp, nf1.format)} %</small>`}${rk('vpp')}</td>
+      <td>${x.er == null ? '—' : nf2.format(x.er) + ' %'}${de == null ? '' : `<small class="d ${dir(de,2)}">${signed(de, nf2.format)} п.п.</small>`}${rk('er')}</td>
+      <td>${x.growth == null ? '—' : signed(x.growth, nf0.format)}${sums && pv && pv.growth != null ? `<small class="d flat">было ${signed(pv.growth, nf0.format)}</small>` : ''}${rk('growth')}</td>
+      <td>${x.subs == null ? '—' : nf0.format(x.subs)}${rk('subs')}<small class="pl">${x.pubs ?? '—'} пост.</small></td></tr>`;
+  }).join('');
+  root.innerHTML = `<div class="back" id="cardBack"></div>
+    <aside class="drawer" role="dialog" aria-modal="true" aria-label="Карточка паблика ${esc(name)}">
+      <div class="dh"><div><h2>${esc(name)}</h2><small>${esc(labelOf(S.cur))}${S.prev ? ' · сравнение с ' + esc(shortOf(S.prev)) : ''}</small></div><button type="button" id="cardClose">Закрыть ✕</button></div>
+      <div class="body">
+        <div class="panel"><h3>Период по площадкам</h3>
+          <div class="mx-wrap"><table><thead><tr><th>Площадка</th><th>Просмотры</th><th>На пост</th><th>ER в день</th><th>Прирост</th><th>Подписчики</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>
+        </div>
+        <div id="cardCharts" style="display:grid;gap:12px"></div>
+      </div>
+    </aside>`;
+  const charts = $('cardCharts');
+  S.cardMetric = S.cardMetric || S.metric;
+  const drawCharts = () => {
+    const m = metricOf(S.cardMetric);
+    charts.innerHTML = `<div class="panel"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><h3>Динамика</h3><span class="spacer"></span><div class="seg" id="cardSeg">${TAB_ORDER.map(k => `<button type="button" data-m="${k}" aria-pressed="${k === S.cardMetric}">${esc(metricOf(k).tab)}</button>`).join('')}</div></div><div class="sub">у каждой площадки своя шкала</div><div class="cm"></div></div>`;
+    const grid = charts.querySelector('.cm');
+    grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px 14px';
+    const later = [];
+    for(const p of where){
+      const vals = S.weeks.map(w => { const x = w.items.find(y => y.platform === p.key && y.name === name); return x && x[m.key] != null ? {y:x[m.key], partial:!!w.partial} : null; });
+      const cell = document.createElement('div'); cell.style.setProperty('--c', color(p));
+      const now = vals[ci];
+      cell.innerHTML = `<h3 style="font-size:13.5px"><span class="dot"></span>${esc(p.label)}<span class="now">${now ? fmtValue(m, now.y) : '—'}</span></h3>`;
+      grid.appendChild(cell);
+      later.push(() => cell.appendChild(lineChart({series:[{label:p.label, c:color(p), vals}], xs, cur:ci, metric:m, width:cell.clientWidth, height:Math.max(120, cell.clientWidth * .45), tipTitle:`${name}, ${p.label}: ${m.title}`})));
+    }
+    later.forEach(f => f());
+    charts.querySelectorAll('#cardSeg button').forEach(b => b.onclick = () => { S.cardMetric = b.dataset.m; drawCharts(); });
+  };
+  drawCharts();
+  const close = () => { S.card = null; S.cardMetric = null; root.innerHTML = ''; hideTip(); document.removeEventListener('keydown', onKey); writeHash(); };
+  const onKey = e => { if(e.key === 'Escape') close(); };
+  $('cardBack').onclick = close; $('cardClose').onclick = close;
+  document.addEventListener('keydown', onKey);
+  if(!refresh){ $('cardClose').focus(); writeHash(); }
+}
+
+// ---------- ресурсы, периоды, поиск ----------
 function renderResources(){
   const all = new Map();
-  for(const w of S.weeks) for(const it of w.items){
-    if(!all.has(it.platform)) all.set(it.platform, new Set());
-    all.get(it.platform).add(it.name);
-  }
+  for(const w of S.raw) for(const it of w.items){ if(!all.has(it.platform)) all.set(it.platform, new Set()); all.get(it.platform).add(it.name); }
   const inCur = new Set((S.cur?.items || []).map(x => key(x.platform, x.name)));
   const cols = $('resCols'); cols.innerHTML = '';
   for(const p of PLATFORMS){
@@ -427,7 +1004,7 @@ function renderResources(){
     const order = new Map((S.cur?.items || []).filter(x => x.platform === p.key).map((x,i) => [x.name, i]));
     names.sort((a,b) => (order.get(a) ?? 999) - (order.get(b) ?? 999) || a.localeCompare(b,'ru'));
     const col = document.createElement('div'); col.className = 'col';
-    col.innerHTML = `<h4>${p.label} <span data-p="${esc(p.key)}">все / ни одного</span></h4>` + names.map(n => {
+    col.innerHTML = `<h4><span><span class="dot" style="--c:${color(p)}"></span> ${p.label}</span> <span>все / ни одного</span></h4>` + names.map(n => {
       const k = key(p.key, n), na = !inCur.has(k);
       return `<label class="${na ? 'na' : ''}"><input type="checkbox" data-k="${esc(k)}" ${S.excluded.has(k) ? '' : 'checked'}> ${esc(n)}${na ? ' <small>(нет данных)</small>' : ''}</label>`;
     }).join('');
@@ -437,87 +1014,117 @@ function renderResources(){
     if(cb.checked) S.excluded.delete(cb.dataset.k); else S.excluded.add(cb.dataset.k);
     saveExcluded(); updateCount(); renderAll();
   });
-  cols.querySelectorAll('h4 span').forEach(sp => sp.onclick = () => {
+  cols.querySelectorAll('h4 > span:last-child').forEach(sp => sp.onclick = () => {
     const boxes = [...sp.closest('.col').querySelectorAll('input')];
     const allOn = boxes.every(b => b.checked);
     boxes.forEach(b => { b.checked = !allOn; if(b.checked) S.excluded.delete(b.dataset.k); else S.excluded.add(b.dataset.k); });
     saveExcluded(); updateCount(); renderAll();
   });
+  $('names').innerHTML = [...new Set(S.raw.flatMap(w => w.items.map(x => x.name)))].sort((a,b) => a.localeCompare(b,'ru')).map(n => `<option value="${esc(n)}">`).join('');
   updateCount();
 }
 function updateCount(){
-  const total = (S.cur?.items || []).length;
-  const on = (S.cur?.items || []).filter(x => !S.excluded.has(key(x.platform, x.name))).length;
-  $('resCount').textContent = `— ${on} из ${total}`;
+  const items = S.cur?.items || [];
+  $('resCount').textContent = `${items.filter(included).length} из ${items.length}`;
 }
 function fillSelects(){
-  const opts = S.weeks.map((w,i) => `<option value="${i}">${humanRange(w)} · лист «${esc(w.sheet)}»</option>`).reverse().join('');
-  $('week').innerHTML = opts;
+  $('week').innerHTML = S.weeks.map((w,i) => `<option value="${i}">${esc(labelOf(w))}</option>`).reverse().join('');
   $('week').value = S.weeks.indexOf(S.cur);
   syncPrev();
 }
 function syncPrev(){
   const ci = S.weeks.indexOf(S.cur);
-  const opts = ['<option value="-1">— не сравнивать</option>'].concat(
-    S.weeks.map((w,i) => i === ci ? '' : `<option value="${i}">${humanRange(w)}</option>`).reverse()).join('');
-  $('prev').innerHTML = opts;
+  $('prev').innerHTML = ['<option value="-1">— не сравнивать</option>'].concat(
+    S.weeks.map((w,i) => i === ci ? '' : `<option value="${i}">${esc(labelOf(w))}</option>`).reverse()).join('');
   $('prev').value = S.prev ? S.weeks.indexOf(S.prev) : -1;
 }
-function prevOf(w){
-  const i = S.weeks.indexOf(w);
-  return i > 0 ? S.weeks[i-1] : null;
+function prevOf(w){ const i = S.weeks.indexOf(w); return i > 0 ? S.weeks[i-1] : null; }
+function setPeriod(kind, keepEnd){
+  S.period = kind;
+  S.weeks = buildPeriods(S.raw, kind);
+  const target = keepEnd || (S.cur ? S.cur.end : null);
+  S.cur = (target && S.weeks.find(w => w.start <= target && target <= w.end)) || S.weeks[S.weeks.length - 1];
+  S.prev = prevOf(S.cur);
+}
+function showMsgs(list){ $('msgs').innerHTML = list.map(m => `<div class="msg ${m.t}">${m.html}</div>`).join(''); }
+function periodNote(){
+  if(S.period === 'week') return null;
+  const notes = [];
+  if(S.cur.partial) notes.push(`${labelOf(S.cur)} — период ещё не закончился`);
+  if(!sumsComparable()) notes.push('периоды разной длины: просмотры и прирост сравниваются только по месту в рейтинге, Δ для них не считается');
+  return notes.length ? notes.join('; ') + '.' : null;
 }
 
-function setDrop(mode){
-  const d = $('drop'); d.hidden = false;
-  if(mode === 'big'){
-    d.classList.remove('compact');
-    d.innerHTML = '<b>Перетащите сюда файл еженедельного съёма (.xlsx)</b><small>или нажмите, чтобы выбрать. Файл читается прямо в браузере и никуда не отправляется.</small>';
-  } else {
-    d.hidden = true; d.innerHTML = '';
-  }
-  d.appendChild(fileInput);
+// ---------- ссылка на вид ----------
+function writeHash(){
+  if(!S.cur) return;
+  const p = new URLSearchParams();
+  p.set('per', S.period); p.set('w', iso(S.cur.end)); p.set('c', S.prev ? iso(S.prev.end) : 'none'); p.set('m', S.metric);
+  if(S.q) p.set('q', S.q); if(S.card) p.set('card', S.card);
+  try{ history.replaceState(null, '', '#' + p.toString()); }catch(e){}
 }
-function showWeeks(weeks, def, msgs){
-  S.weeks = weeks; S.cur = def; S.prev = prevOf(S.cur);
-  showMsgs(msgs);
-  $('app').hidden = false;
+function applyHash(){
+  const p = new URLSearchParams(location.hash.slice(1));
+  if(![...p.keys()].length) return;
+  if(TAB_ORDER.includes(p.get('m'))) S.metric = p.get('m');
+  const per = ['week','month','quarter'].includes(p.get('per')) ? p.get('per') : 'week';
+  const w = p.get('w');
+  S.cur = null; setPeriod(per);
+  if(w){ const t = S.weeks.find(x => iso(x.end) === w); if(t){ S.cur = t; S.prev = prevOf(t); } }
+  const c = p.get('c');
+  if(c === 'none') S.prev = null; else if(c){ const t = S.weeks.find(x => iso(x.end) === c); if(t && t !== S.cur) S.prev = t; }
+  S.q = (p.get('q') || '').toLowerCase(); $('q').value = p.get('q') || '';
+  S.card = p.get('card') || null;
+}
+async function copyLink(){
+  writeHash();
+  const url = location.href;
+  try{ await navigator.clipboard.writeText(url); toast('Ссылка скопирована'); }
+  catch(e){ const t = document.createElement('textarea'); t.value = url; document.body.appendChild(t); t.select(); try{ document.execCommand('copy'); toast('Ссылка скопирована'); }catch(_){ toast(url); } t.remove(); }
+}
+
+// ---------- загрузка данных ----------
+function render(msgs){
+  const extra = periodNote();
+  showMsgs(extra ? msgs.concat([{t:'warn', html:esc(extra)}]) : msgs);
   fillSelects(); renderResources(); renderAll();
 }
-function fmtStamp(isoStr){
-  const d = new Date(isoStr);
-  return isNaN(d) ? '' : d.toLocaleString('ru-RU', {day:'numeric', month:'long', hour:'2-digit', minute:'2-digit'});
+let baseMsgs = [];
+function showWeeks(weeks, def, msgs){
+  weeks.forEach(w => w.items.forEach(enrich));
+  S.raw = weeks; S.cur = null;
+  setPeriod('week', def ? def.end : null);
+  if(S.mode === 'published') applyHash();
+  baseMsgs = msgs;
+  $('drop').hidden = true; $('app').hidden = false; $('hact').hidden = false;
+  render(baseMsgs);
 }
+function fmtStamp(isoStr){ const d = new Date(isoStr); return isNaN(d) ? '' : d.toLocaleString('ru-RU', {day:'numeric', month:'long', hour:'2-digit', minute:'2-digit'}); }
 function showPublished(){
   const P = S.published;
-  const weeks = P.weeks.map(YMParser.fromJSON);
-  const last = weeks[weeks.length-1];
+  const weeks = P.weeks.map(YMParser.fromJSON), last = weeks[weeks.length-1];
   const msgs = [{t:'info', html:`Данные по <b>${humanRange(last)}</b> · недель в истории: ${weeks.length} · обновлено ${fmtStamp(P.updated)}`}];
   (P.warnings || []).forEach(w => msgs.push({t:'warn', html:esc(w)}));
   S.mode = 'published';
-  setDrop('compact');
   showWeeks(weeks, last, msgs);
 }
 async function loadPublished(){
   try{
-    const r = await fetch('data/weeks.json', {cache:'no-cache'});
-    if(!r.ok) throw new Error(r.status);
-    const data = await r.json();
+    let data = window.__EMBED_DATA__;
+    if(!data){
+      const r = await fetch('data/weeks.json', {cache:'no-cache'});
+      if(!r.ok) throw new Error(r.status);
+      data = await r.json();
+    }
     if(!data.weeks || !data.weeks.length) throw new Error('empty');
-    S.published = data;
-    await ready;
-    showPublished();
-  }catch(e){
-    setDrop('big');
-  }
+    S.published = data; await ready; showPublished();
+  }catch(e){ console.error(e); $('drop').hidden = false; }
 }
-
 async function handleFile(file){
   showMsgs([{t:'info', html:`Читаю «${esc(file.name)}»…`}]);
   try{
     await ready;
-    const buf = await file.arrayBuffer();
-    const wb = XLSX.read(buf, {type:'array', cellDates:false});
+    const wb = XLSX.read(await file.arrayBuffer(), {type:'array'});
     const res = YMParser.parseWorkbook(wb, XLSX);
     const msgs = [];
     res.errors.forEach(e => msgs.push({t:'err', html:esc(e)}));
@@ -526,36 +1133,74 @@ async function handleFile(file){
       msgs.unshift({t:'err', html:'В файле не нашлось ни одного листа недели. Ожидаются листы вида «21-27.09» с заголовками «Площадка | Ресурс | Публикаций | Просмотры | … | Подписчики | Прирост подписчиков».'});
       showMsgs(msgs); return;
     }
-    S.mode = 'local'; S.wbName = file.name;
-    const back = S.published ? ' <button id="backPub" type="button">Вернуться к опубликованным данным</button>' : '';
+    S.mode = 'local';
+    const back = S.published ? ' <button class="btn sm" id="backPub" type="button">Вернуться к опубликованным данным</button>' : '';
     msgs.unshift({t:'warn', html:`Предпросмотр файла «${esc(file.name)}» — на сайте он не сохранён. Недель в файле: ${res.weeks.length}, текущая — <b>${humanRange(res.def)}</b>.${back}`});
     showWeeks(res.weeks, res.def, msgs);
     const b = $('backPub'); if(b) b.onclick = showPublished;
-    setDrop('compact');
   }catch(e){
     console.error(e);
     showMsgs([{t:'err', html:'Не удалось прочитать файл: ' + esc(e.message || e)}]);
   }
 }
 
-const fileInput = $('file');
-const drop = $('drop');
-drop.addEventListener('click', e => { if(e.target !== fileInput) fileInput.click(); });
+const fileInput = $('file'), drop = $('drop');
+drop.addEventListener('click', () => fileInput.click());
 drop.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); fileInput.click(); } });
 fileInput.addEventListener('change', () => { if(fileInput.files[0]) handleFile(fileInput.files[0]); fileInput.value = ''; });
-['dragenter','dragover'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
-['dragleave','drop'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); if(ev === 'drop' || e.target === drop) drop.classList.remove('over'); }));
-document.addEventListener('drop', e => { const f = e.dataTransfer?.files?.[0]; if(f) handleFile(f); });
-$('week').onchange = () => { S.cur = S.weeks[+$('week').value]; S.prev = prevOf(S.cur); syncPrev(); renderResources(); renderAll(); };
+document.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+document.addEventListener('dragleave', e => { if(e.target === drop) drop.classList.remove('over'); });
+document.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('over'); const f = e.dataTransfer?.files?.[0]; if(f) handleFile(f); });
+document.addEventListener('click', e => { const d = $('resBox'); if(d.open && !d.contains(e.target)) d.open = false; });
+$('week').onchange = () => { S.cur = S.weeks[+$('week').value]; S.prev = prevOf(S.cur); render(baseMsgs); };
+$('prev').onchange = () => { const v = +$('prev').value; S.prev = v < 0 ? null : S.weeks[v]; render(baseMsgs); };
+document.querySelectorAll('#perSeg button').forEach(b => b.onclick = () => { if(b.dataset.p !== S.period){ setPeriod(b.dataset.p); render(baseMsgs); } });
 $('previewBtn').onclick = () => fileInput.click();
-$('prev').onchange = () => { const v = +$('prev').value; S.prev = v < 0 ? null : S.weeks[v]; renderAll(); };
-$('zip').onclick = async () => { const b = $('zip'); b.disabled = true; b.textContent = 'Собираю…'; try{ await downloadZip(); } finally { b.disabled = false; b.textContent = 'Скачать все 12 PNG (zip)'; } };
+$('linkBtn').onclick = copyLink;
+$('xlsBtn').onclick = () => { try{ downloadXlsx(); }catch(e){ console.error(e); toast('Не удалось собрать Excel'); } };
+const qInput = $('q');
+qInput.addEventListener('input', () => {
+  S.q = qInput.value.trim().toLowerCase();
+  renderRanks(); renderMatrix(); writeHash();
+  const exact = [...$('names').options].find(o => o.value.toLowerCase() === S.q);
+  if(exact && document.activeElement === qInput && qInput.value === exact.value) openCard(exact.value);
+});
+qInput.addEventListener('keydown', e => {
+  if(e.key !== 'Enter' || !S.q) return;
+  const hits = [...new Set(S.cur.items.filter(x => included(x) && x.name.toLowerCase().includes(S.q)).map(x => x.name))];
+  if(hits.length) openCard(hits[0]);
+});
+$('sortSeg').querySelectorAll('button').forEach(b => b.onclick = () => {
+  S.sort = b.dataset.sort;
+  $('sortSeg').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  renderRanks();
+});
+$('zip').onclick = async () => { const b = $('zip'); b.disabled = true; b.textContent = 'Собираю…'; try{ await downloadZip(); } finally { b.disabled = false; b.textContent = 'Скачать 12 PNG'; } };
 
 const ready = (async () => {
   logoImg = await loadLogo();
   try{ await Promise.all(['800 46px Manrope','700 19px Manrope','600 20px Manrope','500 17px Manrope','600 24px Manrope'].map(f => document.fonts.load(f, 'Ямал-Медиа Ab 0123'))); }catch(e){}
   window.__ready = true;
 })();
+let lastW = window.innerWidth, rsT = null;
+window.addEventListener('resize', () => {
+  if(window.innerWidth === lastW) return;
+  lastW = window.innerWidth; clearTimeout(rsT);
+  rsT = setTimeout(() => { if($('app').hidden || !S.cur) return; hideTip(); renderRanks(); renderTrend(); if(S.card) openCard(S.card, true); }, 150);
+});
+
+// ---------- тема ----------
+const THEMES = [{k:'auto', t:'◐ Авто'}, {k:'light', t:'☀ Светлая'}, {k:'dark', t:'☾ Тёмная'}];
+function applyTheme(k){
+  if(k === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', k);
+  const b = $('themeBtn'); b.textContent = THEMES.find(x => x.k === k).t; b.dataset.k = k;
+}
+applyTheme(['light','dark'].includes(loadPref('ym-theme','auto')) ? loadPref('ym-theme','auto') : 'auto');
+$('themeBtn').onclick = () => {
+  const i = THEMES.findIndex(x => x.k === $('themeBtn').dataset.k), k = THEMES[(i + 1) % THEMES.length].k;
+  applyTheme(k); savePref('ym-theme', k);
+};
+
 loadPublished();
 </script>
 </body>
