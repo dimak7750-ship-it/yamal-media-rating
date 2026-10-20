@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Соцсети редакций — итоги месяца</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f4f4f2; --surface: #fcfcfb; --line: #e2e1dc; --line-2: #cfcec8;
+  --text: #0b0b0b; --text-2: #52514e; --muted: #7a7974;
+  --up: #1a7f37; --down: #c4312f; --flag: #9a6700; --flag-bg: #fff5d6;
+  --accent: #2a78d6;
+  --p-vk: #2a78d6; --p-ok: #eb6834; --p-tg: #1baf7a; --p-max: #eda100;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --bg: #121211; --surface: #1a1a19; --line: #2d2d2b; --line-2: #3d3d3a;
+    --text: #f0efec; --text-2: #c3c2b7; --muted: #8f8e88;
+    --up: #4cc26a; --down: #ff7b72; --flag: #e3b341; --flag-bg: #3a2f10;
+    --accent: #3987e5;
+    --p-vk: #3987e5; --p-ok: #d95926; --p-tg: #199e70; --p-max: #c98500;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211; --surface: #1a1a19; --line: #2d2d2b; --line-2: #3d3d3a;
+  --text: #f0efec; --text-2: #c3c2b7; --muted: #8f8e88;
+  --up: #4cc26a; --down: #ff7b72; --flag: #e3b341; --flag-bg: #3a2f10;
+  --accent: #3987e5;
+  --p-vk: #3987e5; --p-ok: #d95926; --p-tg: #199e70; --p-max: #c98500;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--text); font: 14px/1.45 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 16px; }
+header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 8px; }
+h1 { font-size: 20px; margin: 0; font-weight: 650; }
+h2 { font-size: 16px; margin: 0 0 10px; font-weight: 650; }
+.sub { color: var(--text-2); font-size: 13px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+select, button { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--line-2); border-radius: 6px; padding: 5px 8px; }
+button { cursor: pointer; }
+button:hover, select:hover { border-color: var(--text-2); }
+.seg { display: inline-flex; flex-wrap: wrap; max-width: 100%; border: 1px solid var(--line-2); border-radius: 6px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; border-right: 1px solid var(--line-2); }
+.seg button:last-child { border-right: 0; }
+.seg button.on { background: var(--text); color: var(--surface); }
+section.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin: 12px 0; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.tile { border: 1px solid var(--line); border-radius: 6px; padding: 10px; }
+.tile .k { color: var(--text-2); font-size: 12px; }
+.tile .v { font-size: 22px; font-weight: 650; margin: 2px 0; font-variant-numeric: tabular-nums; }
+.tile .d { font-size: 12px; font-variant-numeric: tabular-nums; }
+.tile .n { color: var(--muted); font-size: 11px; margin-top: 4px; }
+.up { color: var(--up); } .down { color: var(--down); } .na { color: var(--muted); }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { padding: 5px 8px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+th { font-weight: 600; color: var(--text-2); font-size: 12px; position: sticky; top: 0; background: var(--surface); }
+th.sort { cursor: pointer; user-select: none; }
+th.sort:hover { color: var(--text); }
+td:first-child, th:first-child, td.l, th.l { text-align: left; }
+tr.block td { font-weight: 650; background: var(--bg); text-align: left; }
+tr.total td { font-weight: 650; border-top: 1px solid var(--line-2); }
+.rank { color: var(--muted); width: 28px; }
+.flag { color: var(--flag); cursor: help; font-size: 12px; margin-left: 4px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 760px) { .row2 { grid-template-columns: 1fr; } }
+.list { margin: 0; padding-left: 18px; }
+.list li { margin: 3px 0; }
+.notes li { margin: 4px 0; }
+.notes .who { font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--text-2); margin: 6px 0; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.stack { display: flex; height: 22px; gap: 2px; margin: 4px 0 10px; }
+.stack div { height: 100%; min-width: 2px; }
+.stack div:first-child { border-radius: 4px 0 0 4px; } .stack div:last-child { border-radius: 0 4px 4px 0; }
+.stack-label { font-size: 12px; color: var(--text-2); }
+#tip { position: fixed; pointer-events: none; background: var(--text); color: var(--surface); padding: 6px 8px; border-radius: 5px; font-size: 12px; line-height: 1.35; z-index: 10; display: none; max-width: 280px; }
+.err { background: var(--flag-bg); border: 1px solid var(--flag); padding: 10px; border-radius: 6px; }
+.small { font-size: 12px; color: var(--text-2); }
+svg text { fill: var(--text-2); font-size: 11px; }
+.hint { color: var(--muted); font-size: 12px; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Соцсети редакций — итоги месяца</h1>
+      <div class="sub" id="meta">загрузка…</div>
+    </div>
+    <div class="controls" style="margin-left:auto">
+      <button id="prevM" title="Предыдущий месяц">‹</button>
+      <select id="month"></select>
+      <button id="nextM" title="Следующий месяц">›</button>
+      <button id="theme" title="Светлая / тёмная тема">◐</button>
+    </div>
+  </header>
+
+  <section class="card">
+    <div class="controls" style="justify-content:space-between;margin-bottom:10px">
+      <h2 style="margin:0">1. Сводка</h2>
+      <div class="seg" id="scope"></div>
+    </div>
+    <div class="tiles" id="tiles"></div>
+    <div class="hint" id="tilesHint"></div>
+  </section>
+
+  <section class="card">
+    <h2>2. Площадки</h2>
+    <div class="row2">
+      <div>
+        <div class="legend" id="pLegend"></div>
+        <div id="shares"></div>
+      </div>
+      <div>
+        <div class="small" style="margin-bottom:4px">Просмотры по месяцам</div>
+        <div id="trend"></div>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table id="pTable"></table></div>
+  </section>
+
+  <section class="card">
+    <div class="controls" style="justify-content:space-between;margin-bottom:10px">
+      <h2 style="margin:0">3. Редакции</h2>
+      <div class="controls">
+        <div class="seg" id="tPlat"></div>
+        <select id="tMetric"></select>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table id="eTable"></table></div>
+    <div class="hint">Колонка прошлого месяца и рост — по площадкам, где цифра есть в обоих месяцах; ✱ — сравнение неполное (наведите, чтобы увидеть почему). Клик по заголовку — сортировка. Муниципальные ранжируются вместе (№), окружные и тематические — отдельными блоками. ⚑ — пометка к данным.</div>
+  </section>
+
+  <section class="card">
+    <div class="controls" style="justify-content:space-between;margin-bottom:10px">
+      <h2 style="margin:0">4. Лучшие и худшие по просмотрам</h2>
+      <div class="seg" id="bwScope"></div>
+    </div>
+    <div class="row2">
+      <div><div class="small">Лучшие</div><ol class="list" id="best"></ol></div>
+      <div><div class="small">Худшие</div><ol class="list" id="worst"></ol></div>
+    </div>
+    <div class="tbl-wrap" style="margin-top:10px"><table id="bwTable"></table></div>
+    <div class="hint" id="bwHint"></div>
+  </section>
+
+  <section class="card">
+    <h2>Пометки к данным и источники</h2>
+    <ul class="notes" id="notes"></ul>
+  </section>
+</div>
+<div id="tip"></div>
+
+<script>
+'use strict';
+const PL = ['ВК', 'ОК', 'ТГ', 'МАКС'];
+const PCOL = {ВК: 'var(--p-vk)', ОК: 'var(--p-ok)', ТГ: 'var(--p-tg)', МАКС: 'var(--p-max)'};
+const BLOCKS = ['Муниципальные', 'Окружные', 'Тематические'];
+const SCOPES = ['Весь холдинг', ...BLOCKS];
+const METRICS = [
+  {k: 'views', name: 'Просмотры'},
+  {k: 'reach', name: 'Охваты (ВК, ОК)'},
+  {k: 'subs', name: 'Подписчики на конец месяца'},
+  {k: 'posts', name: 'Посты'},
+  {k: 'yield', name: 'Отдача поста (просмотры ÷ посты)'},
+  {k: 'er', name: 'ER, % (лайки ÷ подписчики ÷ дни)'}
+];
+const st = {mi: 0, scope: 'Весь холдинг', plat: 'all', metric: 'views', sortCol: 'cur', sortDir: -1, bw: 'Муниципальные'};
+let D = null;
+
+/* ---------- формат ---------- */
+const nf = new Intl.NumberFormat('ru-RU', {maximumFractionDigits: 0});
+const MINUS = '−';
+const fInt = v => v == null ? 'н/д' : nf.format(Math.round(v)).replace('-', MINUS);
+const fDec = (v, d = 2) => v == null ? 'н/д' : v.toFixed(d).replace('.', ',').replace('-', MINUS);
+const fBig = v => {
+  if (v == null) return 'н/д';
+  const a = Math.abs(v);
+  if (a >= 1e6) return fDec(v / 1e6, 2) + ' млн';
+  if (a >= 1e4) return fDec(v / 1e3, 1) + ' тыс.';
+  return fInt(v);
+};
+const sign = (v, f) => v == null ? 'н/д' : (v > 0 ? '+' : v < 0 ? MINUS : '') + f(Math.abs(v));
+const fPct = v => v == null || !isFinite(v) ? 'н/д' : sign(v, x => x.toFixed(1).replace('.', ',')) + '%';
+const cls = v => v == null || !isFinite(v) ? 'na' : v > 0 ? 'up' : v < 0 ? 'down' : '';
+const pct = (a, b) => (a == null || b == null || b === 0) ? null : (a / b - 1) * 100;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const fMetric = (k, v) => k === 'er' ? (v == null ? 'н/д' : fDec(v, 2) + '%') : fInt(v);
+
+/* ---------- данные ---------- */
+function cell(m, ed, p) { return m && m.cells[ed + '|' + p] || null; }
+function prevOf(i) {
+  if (i <= 0) return null;
+  const [y, mo] = D.months[i].month.split('-').map(Number);
+  const pm = mo === 1 ? `${y - 1}-12` : `${y}-${String(mo - 1).padStart(2, '0')}`;
+  return D.months[i - 1].month === pm ? D.months[i - 1] : null;
+}
+function edsOf(scope) { return D.editorials.filter(e => scope === 'Весь холдинг' || e.block === scope); }
+function platsOf(e, plat) { return e.platforms.filter(p => plat === 'all' || p === plat); }
+
+/* сумма по набору клеток */
+function agg(m, pairs, k) {
+  if (!m) return null;
+  let a = 0, b = 0, n = 0;
+  for (const [ed, p] of pairs) {
+    const c = cell(m, ed, p); if (!c) continue;
+    if (k === 'yield') { if (c.views != null && c.posts) { a += c.views; b += c.posts; n++; } }
+    else if (k === 'er') { if (c.likes != null && c.subs) { a += c.likes; b += c.subs; n++; } }
+    else if (c[k] != null) { a += c[k]; n++; }
+  }
+  if (!n) return null;
+  if (k === 'yield') return a / b;
+  if (k === 'er') return a / b / m.days * 100;
+  return a;
+}
+function pairsOf(scope, plat) {
+  const out = [];
+  for (const e of edsOf(scope)) for (const p of platsOf(e, plat)) out.push([e.name, p]);
+  return out;
+}
+const NEED = k => k === 'yield' ? ['views', 'posts'] : k === 'er' ? ['likes', 'subs'] : [k];
+function has(m, ed, p, k) { const c = cell(m, ed, p); return !!c && NEED(k).every(x => c[x] != null) && (k !== 'yield' || c.posts > 0) && (k !== 'er' || c.subs > 0); }
+/* сравнение с прошлым месяцем: рост считается по клеткам, где цифра есть в обоих месяцах */
+function cmp(m, pm, pairs, k) {
+  const cur = agg(m, pairs, k);
+  if (!pm) return {cur, prev: null, diff: null, pct: null, partial: false};
+  const now = pairs.filter(([ed, p]) => has(m, ed, p, k));
+  const both = now.filter(([ed, p]) => has(pm, ed, p, k));
+  const prevAll = pairs.filter(([ed, p]) => has(pm, ed, p, k));
+  if (!both.length) return {cur, prev: agg(pm, pairs, k), diff: null, pct: null, partial: false};
+  const a = agg(m, both, k), b = agg(pm, both, k);
+  const partial = both.length < now.length || both.length < prevAll.length;
+  return {cur, prev: b, curL: a, diff: a - b, pct: k === 'er' ? null : pct(a, b), partial,
+    note: partial ? `рост посчитан по ${both.length} из ${Math.max(now.length, prevAll.length)} площадок-ресурсов, где цифра есть в обоих месяцах` : ''};
+}
+function covered(m, pairs, k) {
+  const need = k === 'yield' ? ['views', 'posts'] : k === 'er' ? ['likes', 'subs'] : [k];
+  const ps = new Set();
+  for (const [ed, p] of pairs) { const c = cell(m, ed, p); if (c && need.every(x => c[x] != null)) ps.add(p); }
+  return PL.filter(p => ps.has(p));
+}
+
+/* ---------- подсказка ---------- */
+const tip = document.getElementById('tip');
+function bindTip(root) {
+  root.querySelectorAll('[data-tip]').forEach(el => {
+    el.addEventListener('mousemove', e => {
+      tip.innerHTML = el.dataset.tip; tip.style.display = 'block';
+      const x = Math.min(e.clientX + 12, innerWidth - tip.offsetWidth - 8);
+      tip.style.left = x + 'px'; tip.style.top = (e.clientY + 14) + 'px';
+    });
+    el.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+  });
+}
+
+/* ---------- отрисовка ---------- */
+function render() {
+  const m = D.months[st.mi], pm = prevOf(st.mi);
+  document.getElementById('month').value = st.mi;
+  const snap = m.subsSnapshot ? m.subsSnapshot.split('-').reverse().join('.') : 'н/д';
+  document.getElementById('meta').innerHTML =
+    `${esc(m.label)} · сравнение с ${pm ? esc(pm.label.toLowerCase()) : '— (прошлого месяца нет в данных)'} · подписчики на ${snap} · обновлено ${new Date(D.updated).toLocaleDateString('ru-RU')}`;
+  location.hash = m.month;
+  renderTiles(m, pm); renderPlatforms(m, pm); renderTable(m, pm); renderBW(m, pm); renderNotes(m);
+}
+
+function renderTiles(m, pm) {
+  const pairs = pairsOf(st.scope, 'all');
+  const pp = pm ? prevOf(st.mi - 1) : null;
+  const gr = cmp(m, pm, pairs, 'subs').diff;
+  const grPrev = pm ? cmp(pm, pp, pairs, 'subs').diff : null;
+  const T = [
+    {k: 'views', n: 'Просмотры'},
+    {k: 'reach', n: 'Охваты ВК + ОК'},
+    {k: 'subs', n: 'Подписчики'},
+    {k: 'growth', n: 'Прирост подписчиков'},
+    {k: 'posts', n: 'Посты'},
+    {k: 'yield', n: 'Отдача поста'},
+    {k: 'er', n: 'ER'}
+  ];
+  const html = T.map(t => {
+    let cur, prev, sub = '';
+    if (t.k === 'growth') {
+      cur = gr; prev = grPrev;
+      return `<div class="tile"><div class="k">${t.n}</div><div class="v">${sign(cur, fInt)}</div>
+        <div class="d na">прошлый месяц: ${prev == null ? 'н/д' : sign(prev, fInt)}</div></div>`;
+    }
+    const c = cmp(m, pm, pairs, t.k); cur = c.cur;
+    const cov = covered(m, pairs, t.k);
+    const subs = [];
+    if (['posts', 'yield', 'er'].includes(t.k) && cov.length && cov.length < 4) subs.push('есть только: ' + cov.join(', '));
+    if (c.partial) subs.push('✱ ' + c.note);
+    sub = subs.join('<br>');
+    const v = t.k === 'er' ? fMetric('er', cur) : t.k === 'yield' ? fInt(cur) : fBig(cur);
+    const d = t.k === 'er' ? (c.diff != null ? sign(c.diff, x => fDec(x, 2)) + ' п.п.' : 'н/д') : fPct(c.pct);
+    const dc = t.k === 'er' ? cls(c.diff) : cls(c.pct);
+    const abs = (t.k !== 'er' && t.k !== 'yield' && c.diff != null) ? ` · ${sign(c.diff, fInt)}` : '';
+    return `<div class="tile"><div class="k">${t.n}</div><div class="v">${v}</div>
+      <div class="d ${dc}">${d}${abs}${c.partial ? ' ✱' : ''}</div>${sub ? `<div class="n">${sub}</div>` : ''}</div>`;
+  }).join('');
+  document.getElementById('tiles').innerHTML = html;
+  document.getElementById('tilesHint').textContent = pm ? 'Суммы — по всем ресурсам, где есть цифра в месяце, без выравнивания периметра. ' + (st.scope === 'Весь холдинг' ? 'Холдинг = муниципальные + окружные + тематические.' : '') : 'Прошлого месяца нет в данных — рост не считается.';
+}
+
+function renderPlatforms(m, pm) {
+  document.getElementById('pLegend').innerHTML = PL.map(p => `<span><i style="background:${PCOL[p]}"></i>${p}</span>`).join('');
+  const rows = PL.map(p => {
+    const pairs = pairsOf(st.scope, p);
+    const cv = cmp(m, pm, pairs, 'views'), cp = cmp(m, pm, pairs, 'posts'), cy = cmp(m, pm, pairs, 'yield');
+    return {p, v: cv.cur, vp: agg(pm, pairs, 'views'), po: cp.cur, pop: agg(pm, pairs, 'posts'), y: cy.cur, yp: agg(pm, pairs, 'yield'), cv, cp, cy};
+  });
+  const sum = (k) => rows.reduce((s, r) => s + (r[k] || 0), 0);
+  const share = (r, k, tot) => tot ? (r[k] || 0) / tot * 100 : null;
+  const tv = sum('v'), tvp = sum('vp'), tpo = sum('po'), tpop = sum('pop');
+  const allPairs = pairsOf(st.scope, 'all'), tcv = cmp(m, pm, allPairs, 'views'), tcp = cmp(m, pm, allPairs, 'posts');
+  const bar = (k, tot, label, mm) => {
+    if (!tot) return `<div class="stack-label">${label}: н/д</div>`;
+    return `<div class="stack-label">${label}</div><div class="stack">` + rows.filter(r => r[k]).map(r =>
+      `<div style="width:${r[k] / tot * 100}%;background:${PCOL[r.p]}" data-tip="${r.p} · ${esc(mm)}<br>${fInt(r[k])} · ${fDec(r[k] / tot * 100, 1)}%"></div>`).join('') + '</div>';
+  };
+  let h = bar('v', tv, `Доля в просмотрах · ${m.label}`, m.label);
+  if (pm) h += bar('vp', tvp, `Доля в просмотрах · ${pm.label}`, pm.label);
+  h += bar('po', tpo, `Доля в публикациях · ${m.label}`, m.label);
+  if (pm) h += bar('pop', tpop, `Доля в публикациях · ${pm.label}`, pm.label);
+  const sh = document.getElementById('shares'); sh.innerHTML = h; bindTip(sh);
+
+  const t = document.getElementById('pTable');
+  const pp = (a, b) => a == null || b == null ? null : a - b;
+  t.innerHTML = `<tr><th class="l">Площадка</th><th>Просмотры</th><th>%</th><th>Доля просм.</th><th>Δ доли, п.п.</th><th>Посты</th><th>%</th><th>Доля публ.</th><th>Δ доли, п.п.</th><th>Отдача</th><th>%</th></tr>` +
+    rows.map(r => {
+      const s1 = share(r, 'v', tv), s1p = pm ? share(r, 'vp', tvp) : null, s2 = r.po ? share(r, 'po', tpo) : null, s2p = pm && r.pop ? share(r, 'pop', tpop) : null;
+      return `<tr><td><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${PCOL[r.p]};margin-right:6px"></i>${r.p}</td>
+      <td>${fInt(r.v)}</td><td class="${cls(r.cv.pct)}">${fPct(r.cv.pct)}${r.cv.partial ? ' ✱' : ''}</td>
+      <td>${s1 == null ? 'н/д' : fDec(s1, 1) + '%'}</td><td class="${cls(pp(s1, s1p))}">${pp(s1, s1p) == null ? 'н/д' : sign(pp(s1, s1p), x => fDec(x, 1))}</td>
+      <td>${fInt(r.po)}</td><td class="${cls(r.cp.pct)}">${fPct(r.cp.pct)}${r.cp.partial ? ' ✱' : ''}</td>
+      <td>${s2 == null ? 'н/д' : fDec(s2, 1) + '%'}</td><td class="${cls(pp(s2, s2p))}">${pp(s2, s2p) == null ? 'н/д' : sign(pp(s2, s2p), x => fDec(x, 1))}</td>
+      <td>${fInt(r.y)}</td><td class="${cls(r.cy.pct)}">${fPct(r.cy.pct)}${r.cy.partial ? ' ✱' : ''}</td></tr>`;
+    }).join('') +
+    `<tr class="total"><td>Итого</td><td>${fInt(tv)}</td><td class="${cls(tcv.pct)}">${fPct(tcv.pct)}${tcv.partial ? ' ✱' : ''}</td><td>100%</td><td></td>
+     <td>${tpo ? fInt(tpo) : 'н/д'}</td><td class="${cls(tcp.pct)}">${fPct(tcp.pct)}${tcp.partial ? ' ✱' : ''}</td><td>${tpo ? '100%' : ''}</td><td></td><td></td><td></td></tr>`;
+  renderTrend();
+}
+
+function renderTrend() {
+  const ms = D.months.slice(Math.max(0, st.mi - 5), st.mi + 1);
+  const data = ms.map(m => ({m, v: PL.map(p => agg(m, pairsOf(st.scope, p), 'views'))}));
+  const max = Math.max(1, ...data.flatMap(d => d.v.map(x => x || 0)));
+  const W = 520, H = 210, pl = 44, pb = 24, pt = 8;
+  const gw = (W - pl - 8) / ms.length, bw = Math.min(26, (gw - 16) / 4 - 2);
+  const y = v => pt + (H - pt - pb) * (1 - v / max);
+  const ticks = [0, max / 2, max];
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Просмотры по месяцам и площадкам">`;
+  for (const tv of ticks) s += `<line x1="${pl}" x2="${W - 4}" y1="${y(tv)}" y2="${y(tv)}" stroke="var(--line)" stroke-width="1"/><text x="${pl - 6}" y="${y(tv) + 4}" text-anchor="end">${fBig(tv).replace(' тыс.', 'т').replace(' млн', 'м')}</text>`;
+  data.forEach((d, i) => {
+    const x0 = pl + i * gw + (gw - (bw + 2) * 4) / 2;
+    d.v.forEach((v, j) => {
+      if (v == null) return;
+      const x = x0 + j * (bw + 2), yy = y(v), h = H - pb - yy;
+      const r = Math.min(4, bw / 2, h);
+      s += `<path d="M${x},${H - pb} V${yy + r} Q${x},${yy} ${x + r},${yy} H${x + bw - r} Q${x + bw},${yy} ${x + bw},${yy + r} V${H - pb} Z" fill="${PCOL[PL[j]]}" data-tip="${PL[j]} · ${esc(d.m.label)}<br>${fInt(v)}"/>`;
+    });
+    s += `<text x="${pl + i * gw + gw / 2}" y="${H - 7}" text-anchor="middle">${esc(d.m.label.split(' ')[0])}</text>`;
+  });
+  s += `<line x1="${pl}" x2="${W - 4}" y1="${H - pb}" y2="${H - pb}" stroke="var(--line-2)"/></svg>`;
+  const el = document.getElementById('trend'); el.innerHTML = s; bindTip(el);
+}
+
+function notesFor(m, ed, p) {
+  return D.notes.filter(n => (n.month === '*' || n.month === m.month) && (n.editorial === ed || n.editorial === '*') && (n.platform === p || n.platform === '*' || p === 'all'))
+    .filter(n => n.editorial !== '*');
+}
+
+function renderTable(m, pm) {
+  const k = st.metric, plat = st.plat;
+  const isSubs = k === 'subs';
+  const heads = [
+    {c: 'name', t: 'Редакция', l: true},
+    {c: 'prev', t: pm ? pm.label.split(' ')[0] : 'прошлый'},
+    {c: 'cur', t: m.label.split(' ')[0]},
+    {c: 'diff', t: isSubs ? 'Прирост' : (k === 'er' ? 'Δ, п.п.' : 'Рост')},
+    {c: 'pct', t: '%'}
+  ];
+  let h = '<tr><th class="rank">№</th>' + heads.map(x => `<th class="sort ${x.l ? 'l' : ''}" data-c="${x.c}">${x.t}${st.sortCol === x.c ? (st.sortDir < 0 ? ' ↓' : ' ↑') : ''}</th>`).join('') + '</tr>';
+  const fmt = v => fMetric(k, v);
+  for (const b of BLOCKS) {
+    const eds = D.editorials.filter(e => e.block === b && platsOf(e, plat).length && (k !== 'reach' || platsOf(e, plat).some(p => p === 'ВК' || p === 'ОК')));
+    if (!eds.length) continue;
+    const rows = eds.map(e => {
+      const pairs = platsOf(e, plat).map(p => [e.name, p]);
+      const c = cmp(m, pm, pairs, k), cur = c.cur, prev = c.prev, diff = c.diff;
+      const nts = plat === 'all' ? D.notes.filter(n => (n.month === '*' || n.month === m.month) && n.editorial === e.name)
+        : D.notes.filter(n => (n.month === '*' || n.month === m.month) && n.editorial === e.name && (n.platform === plat || n.platform === '*'));
+      return {name: e.name, cur, prev, diff, pct: c.pct, nts, partial: c.partial, note: c.note};
+    });
+    const rk = rows.slice().filter(r => r.cur != null).sort((a, c) => c.cur - a.cur);
+    const sortKey = st.sortCol;
+    rows.sort((a, c) => {
+      if (sortKey === 'name') return st.sortDir * a.name.localeCompare(c.name, 'ru');
+      const x = a[sortKey], y = c[sortKey];
+      if (x == null && y == null) return 0; if (x == null) return 1; if (y == null) return -1;
+      return st.sortDir * (x - y);
+    });
+    h += `<tr class="block"><td colspan="6">${b}</td></tr>`;
+    for (const r of rows) {
+      const n = b === 'Муниципальные' && r.cur != null ? rk.indexOf(r) + 1 : '';
+      const fl = r.nts.length ? `<span class="flag" data-tip="${esc(r.nts.map(x => x.platform + ': ' + x.text).join('<br>'))}">⚑</span>` : '';
+      h += `<tr><td class="rank">${n}</td><td class="l">${esc(r.name)}${fl}</td><td>${fmt(r.prev)}</td><td>${fmt(r.cur)}</td>
+        <td class="${cls(r.diff)}">${r.diff == null ? 'н/д' : (k === 'er' ? sign(r.diff, x => fDec(x, 2)) : sign(r.diff, fInt))}</td>
+        <td class="${cls(r.pct)}">${fPct(r.pct)}${r.partial ? ` <span data-tip="${esc(r.note || 'нет цифры в одном из месяцев')}">✱</span>` : ''}</td></tr>`;
+    }
+    const pairs = []; eds.forEach(e => platsOf(e, plat).forEach(p => pairs.push([e.name, p])));
+    const tcc = cmp(m, pm, pairs, k), tc = tcc.cur, tp = tcc.prev, td = tcc.diff;
+    h += `<tr class="total"><td></td><td class="l">Итого · ${b.toLowerCase()}</td><td>${fmt(tp)}</td><td>${fmt(tc)}</td>
+      <td class="${cls(td)}">${td == null ? 'н/д' : (k === 'er' ? sign(td, x => fDec(x, 2)) : sign(td, fInt))}</td><td class="${cls(tcc.pct)}">${k === 'er' ? '' : fPct(tcc.pct)}${tcc.partial ? ` <span data-tip="${esc(tcc.note)}">✱</span>` : ''}</td></tr>`;
+  }
+  const t = document.getElementById('eTable'); t.innerHTML = h; bindTip(t);
+  t.querySelectorAll('th.sort').forEach(th => th.onclick = () => {
+    const c = th.dataset.c;
+    if (st.sortCol === c) st.sortDir *= -1; else { st.sortCol = c; st.sortDir = c === 'name' ? 1 : -1; }
+    renderTable(D.months[st.mi], prevOf(st.mi));
+  });
+}
+
+function renderBW(m, pm) {
+  const eds = D.editorials.filter(e => e.block === st.bw);
+  const rows = eds.map(e => {
+    const all = e.platforms.map(p => [e.name, p]);
+    const cv = cmp(m, pm, all, 'views'), v = cv.cur, vp = cv.prev;
+    // объём и отдача — по площадкам, где есть и посты, и просмотры в обоих месяцах
+    const both = all.filter(([ed, p]) => { const a = cell(m, ed, p), b = cell(pm, ed, p); return a && b && a.posts && b.posts && a.views != null && b.views != null; });
+    const po = both.length ? agg(m, both, 'posts') : null, pop = both.length ? agg(pm, both, 'posts') : null;
+    const y = both.length ? agg(m, both, 'yield') : null, yp = both.length ? agg(pm, both, 'yield') : null;
+    return {name: e.name, v, vp, p: cv.pct, partial: cv.partial, vol: pct(po, pop), yld: pct(y, yp), on: both.map(x => x[1])};
+  }).filter(r => r.p != null);
+  rows.sort((a, b) => b.p - a.p);
+  const line = r => `<li><b>${esc(r.name)}</b> <span class="${cls(r.p)}">${fPct(r.p)}</span>` +
+    (r.vol != null ? ` <span class="small">· выпуск ${fPct(r.vol)}, отдача ${fPct(r.yld)} (${r.on.join(', ')})</span>` : ' <span class="small">· посты н/д</span>') + '</li>';
+  const n = Math.min(4, Math.floor(rows.length / 2));
+  document.getElementById('best').innerHTML = pm && rows.length ? rows.slice(0, n).map(line).join('') : '<li class="na">нет данных для сравнения</li>';
+  document.getElementById('worst').innerHTML = pm && rows.length ? rows.slice(-n).reverse().map(line).join('') : '<li class="na">нет данных для сравнения</li>';
+  const t = document.getElementById('bwTable');
+  t.innerHTML = '<tr><th class="l">Редакция</th><th>Просмотры, прошлый</th><th>Просмотры, текущий</th><th>%</th><th>Выпуск, %</th><th>Отдача, %</th><th class="l">Посты по</th></tr>' +
+    rows.map(r => `<tr><td>${esc(r.name)}</td><td>${fInt(r.vp)}</td><td>${fInt(r.v)}</td><td class="${cls(r.p)}">${fPct(r.p)}${r.partial ? ' ✱' : ''}</td>
+      <td class="${cls(r.vol)}">${fPct(r.vol)}</td><td class="${cls(r.yld)}">${fPct(r.yld)}</td><td class="l small">${r.on.join(', ') || 'н/д'}</td></tr>`).join('');
+  document.getElementById('bwHint').textContent = 'Просмотры — сумма по всем площадкам редакции. Выпуск и отдача — только по площадкам, где посты есть в обоих месяцах (указаны справа).';
+}
+
+function renderNotes(m) {
+  const items = [];
+  const snap = m.subsSnapshot ? m.subsSnapshot.split('-').reverse().join('.') : 'н/д';
+  items.push(`<li><span class="who">Файлы месяца:</span> ${m.files.map(esc).join(' · ')}</li>`);
+  items.push(`<li><span class="who">Подписчики:</span> срез ${snap}${m.weekSheet ? ` (лист «${esc(m.weekSheet)}»)` : ''}</li>`);
+  D.notes.filter(n => n.month === '*' || n.month === m.month).forEach(n =>
+    items.push(`<li><span class="flag">⚑</span> <span class="who">${esc(n.platform === '*' ? '' : n.platform)} ${esc(n.editorial === '*' ? '' : n.editorial)}</span> ${esc(n.text)}</li>`));
+  m.warnings.forEach(w => items.push(`<li class="small">${esc(w)}</li>`));
+  document.getElementById('notes').innerHTML = items.join('');
+}
+
+/* ---------- управление ---------- */
+function seg(id, opts, get, set) {
+  const el = document.getElementById(id);
+  el.innerHTML = opts.map(o => `<button data-v="${esc(o[0])}">${esc(o[1])}</button>`).join('');
+  const upd = () => el.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === get()));
+  el.onclick = e => { const b = e.target.closest('button'); if (!b) return; set(b.dataset.v); upd(); render(); };
+  upd();
+}
+
+function init() {
+  const sel = document.getElementById('month');
+  sel.innerHTML = D.months.map((m, i) => `<option value="${i}">${esc(m.label)}</option>`).join('');
+  const h = location.hash.slice(1);
+  const hi = D.months.findIndex(m => m.month === h);
+  st.mi = hi >= 0 ? hi : D.months.length - 1;
+  sel.onchange = () => { st.mi = +sel.value; render(); };
+  document.getElementById('prevM').onclick = () => { if (st.mi > 0) { st.mi--; render(); } };
+  document.getElementById('nextM').onclick = () => { if (st.mi < D.months.length - 1) { st.mi++; render(); } };
+  seg('scope', SCOPES.map(s => [s, s]), () => st.scope, v => st.scope = v);
+  seg('tPlat', [['all', 'Все'], ...PL.map(p => [p, p])], () => st.plat, v => st.plat = v);
+  seg('bwScope', BLOCKS.map(s => [s, s]), () => st.bw, v => st.bw = v);
+  const ms = document.getElementById('tMetric');
+  ms.innerHTML = METRICS.map(x => `<option value="${x.k}">${x.name}</option>`).join('');
+  ms.onchange = () => { st.metric = ms.value; render(); };
+  document.getElementById('theme').onclick = () => {
+    const r = document.documentElement;
+    const dark = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    r.dataset.theme = dark ? 'light' : 'dark';
+    try { localStorage.setItem('ym-theme', r.dataset.theme); } catch (e) {}
+  };
+  try { const t = localStorage.getItem('ym-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  render();
+}
+
+fetch('data/months.json', {cache: 'no-store'}).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(d => { D = d; init(); })
+  .catch(e => { document.querySelector('.wrap').insertAdjacentHTML('beforeend', `<div class="err">Не удалось загрузить data/months.json (${esc(e.message)}). Проверьте вкладку Actions: сборка могла остановиться.</div>`); });
+</script>
+</body>
+</html>
