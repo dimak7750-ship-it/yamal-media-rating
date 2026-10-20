@@ -212,6 +212,7 @@ for (const r of resources) {
   if (!e) editorials.push(e = {name: r.editorial, block: r.block, platforms: []});
   e.platforms.push(r.platform);
 }
-const out = {updated: new Date().toISOString(), editorials, notes, months};
+// пометки и предупреждения на публичную страницу не выводятся — они остаются в логе сборки (вкладка Actions) и в data/notes.csv
+const out = {updated: new Date().toISOString(), editorials, notes: [], months: months.map(m => ({...m, warnings: [], files: []}))};
 fs.writeFileSync(path.join(root, 'data', 'months.json'), JSON.stringify(out));
 console.log(`data/months.json: месяцев ${months.length} (${months[0].month} … ${months[months.length - 1].month})`);

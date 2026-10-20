@@ -151,7 +151,7 @@ svg text{fill:var(--muted);font-size:11px;font-family:inherit}
       </div>
     </div>
     <div class="tbl-wrap"><table id="eTable"></table></div>
-    <div class="hint">Колонка прошлого месяца и рост — по площадкам, где цифра есть в обоих месяцах; ✱ — сравнение неполное (наведите, чтобы увидеть почему). Клик по заголовку — сортировка. Муниципальные ранжируются вместе (№), окружные и тематические — отдельными блоками. ⚑ — пометка к данным.</div>
+    <div class="hint">Колонка прошлого месяца и рост — по площадкам, где цифра есть в обоих месяцах; ✱ — сравнение неполное (наведите, чтобы увидеть почему). Клик по заголовку — сортировка. Муниципальные ранжируются вместе (№), окружные и тематические — отдельными блоками.</div>
   </section>
 
   <section class="card">
@@ -167,10 +167,6 @@ svg text{fill:var(--muted);font-size:11px;font-family:inherit}
     <div class="hint" id="bwHint"></div>
   </section>
 
-  <section class="card">
-    <h2>Пометки к данным и источники</h2>
-    <ul class="notes" id="notes"></ul>
-  </section>
 </div>
 <div id="tip"></div>
 
@@ -284,7 +280,7 @@ function render() {
   document.getElementById('meta').innerHTML =
     `${esc(m.label)} · прошлый месяц для сравнения: ${pm ? esc(pm.label.toLowerCase()) : '— (прошлого месяца нет в данных)'} · подписчики на ${snap} · обновлено ${new Date(D.updated).toLocaleDateString('ru-RU')}`;
   location.hash = m.month;
-  renderTiles(m, pm); renderPlatforms(m, pm); renderTable(m, pm); renderBW(m, pm); renderNotes(m);
+  renderTiles(m, pm); renderPlatforms(m, pm); renderTable(m, pm); renderBW(m, pm);
 }
 
 function renderTiles(m, pm) {
@@ -426,7 +422,7 @@ function renderTable(m, pm) {
     h += `<tr class="block"><td colspan="6">${b}</td></tr>`;
     for (const r of rows) {
       const n = b === 'Муниципальные' && r.cur != null ? rk.indexOf(r) + 1 : '';
-      const fl = r.nts.length ? `<span class="flag" data-tip="${esc(r.nts.map(x => x.platform + ': ' + x.text).join('<br>'))}">⚑</span>` : '';
+      const fl = '';
       h += `<tr><td class="rank">${n}</td><td class="l">${esc(r.name)}${fl}</td><td>${fmt(r.prev)}</td><td>${fmt(r.cur)}</td>
         <td class="${cls(r.diff)}">${r.diff == null ? 'н/д' : (k === 'er' ? sign(r.diff, x => fDec(x, 2)) : sign(r.diff, fInt))}</td>
         <td class="${cls(r.pct)}">${fPct(r.pct)}${r.partial ? ` <span data-tip="${esc(r.note || 'нет цифры в одном из месяцев')}">✱</span>` : ''}</td></tr>`;
@@ -468,16 +464,6 @@ function renderBW(m, pm) {
   document.getElementById('bwHint').textContent = 'Просмотры — сумма по всем площадкам редакции. Выпуск и отдача — только по площадкам, где посты есть в обоих месяцах (указаны справа).';
 }
 
-function renderNotes(m) {
-  const items = [];
-  const snap = m.subsSnapshot ? m.subsSnapshot.split('-').reverse().join('.') : 'н/д';
-  items.push(`<li><span class="who">Файлы месяца:</span> ${m.files.map(esc).join(' · ')}</li>`);
-  items.push(`<li><span class="who">Подписчики:</span> срез ${snap}${m.weekSheet ? ` (лист «${esc(m.weekSheet)}»)` : ''}</li>`);
-  D.notes.filter(n => n.month === '*' || n.month === m.month).forEach(n =>
-    items.push(`<li><span class="flag">⚑</span> <span class="who">${esc(n.platform === '*' ? '' : n.platform)} ${esc(n.editorial === '*' ? '' : n.editorial)}</span> ${esc(n.text)}</li>`));
-  m.warnings.forEach(w => items.push(`<li class="small">${esc(w)}</li>`));
-  document.getElementById('notes').innerHTML = items.join('');
-}
 
 /* ---------- управление ---------- */
 function seg(id, opts, get, set) {
