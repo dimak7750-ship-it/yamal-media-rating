@@ -32,12 +32,20 @@ for (const mk of monthDirs) {
   const [year, mm] = mk.split('-').map(Number);
   const mIdx = mm - 1;
   const dir = path.join(rawDir, mk);
-  const files = fs.readdirSync(dir).filter(f => !f.startsWith('~$') && !f.startsWith('.') && fs.statSync(path.join(dir, f)).isFile());
+  // файлы ищутся и во вложенных папках (например, 2026-09/popster/…)
+  const walk = (d, pre = '') => fs.readdirSync(d).flatMap(f => {
+    if (f.startsWith('~$') || f.startsWith('.')) return [];
+    const full = path.join(d, f);
+    return fs.statSync(full).isDirectory() ? walk(full, pre + f + '/') : [pre + f];
+  });
+  const files = walk(dir);
   const warns = [];
-  const roles = {stat: [], weekly: [], vk: [], tg: [], ok: [], max: [], manual: [], other: []};
+  const roles = {stat: [], weekly: [], vk: [], tg: [], ok: [], popster: [], okadmin: [], max: [], manual: [], other: []};
   for (const f of files) {
-    const n = f.toLowerCase();
-    if (/tgwallposts/.test(n) && n.endsWith('.csv')) roles.tg.push(f);
+    const n = path.basename(f).toLowerCase();
+    if (/^popster.*\.xlsx$/.test(n)) roles.popster.push(f);
+    else if (/ok_group\d+.*\.xls$/.test(n)) roles.okadmin.push(f);
+    else if (/tgwallposts/.test(n) && n.endsWith('.csv')) roles.tg.push(f);
     else if (/okwallposts/.test(n) && n.endsWith('.csv')) roles.ok.push(f);
     else if (/wallposts/.test(n) && n.endsWith('.csv')) roles.vk.push(f);
     else if (/статистик/.test(n) && /\.xlsx?$/.test(n)) roles.stat.push(f);
@@ -71,9 +79,25 @@ for (const mk of monthDirs) {
     if (Math.abs(gap) > 3) warns.push(`Подписчики сняты ${weekly.snapshot.split('-').reverse().join('.')} — ${Math.abs(gap)} дн. ${gap > 0 ? 'после' : 'до'} конца месяца.`);
   }
 
-  // barkov
+  // посты и лайки ВК/ТГ/ОК: barkov; если barkov по площадке нет — Popster (ВК, ТГ) и админские выгрузки (ОК)
   const barkov = {};
+  const alt = {ВК: {byOwner: {}, files: []}, ТГ: {byOwner: {}, files: []}, ОК: {byOwner: {}, files: []}};
+  const addTo = (dst, src) => { for (const [k, v] of Object.entries(src)) { const o = dst[k] || (dst[k] = {posts: 0, likes: 0}); o.posts += v.posts; o.likes += v.likes; } };
+  for (const f of roles.popster) {
+    const r = collect(L.parsePopster(readWb(f), XLSX, mk, path.basename(f)));
+    if (r.byOwner && r.platform) { addTo(alt[r.platform].byOwner, r.byOwner); alt[r.platform].files.push(f); }
+  }
+  for (const f of roles.okadmin) {
+    const r = collect(L.parseOkAdmin(readWb(f), XLSX, mk, path.basename(f)));
+    if (r.byOwner) { addTo(alt['ОК'].byOwner, r.byOwner); alt['ОК'].files.push(f); }
+  }
   for (const [p, key] of [['ВК', 'vk'], ['ТГ', 'tg'], ['ОК', 'ok']]) {
+    if (!roles[key].length && alt[p].files.length) {
+      barkov[p] = {byOwner: alt[p].byOwner, files: alt[p].files, used: new Set(), label: p === 'ОК' ? 'админка ОК' : 'Popster'};
+      warns.push(`Посты и лайки ${p} — из ${p === 'ОК' ? 'админских выгрузок ОК (посты = лист Topics, лайки = LIKES листа Actions)' : 'выгрузок Popster'}: ${alt[p].files.length} файлов.`);
+      continue;
+    }
+    if (roles[key].length && alt[p].files.length) warns.push(`По ${p} есть и barkov, и ${p === 'ОК' ? 'админка' : 'Popster'} — взят barkov.`);
     if (!roles[key].length) { warns.push(`Нет выгрузки barkov ${p}: посты, отдача и ER ${p} — н/д.`); continue; }
     if (roles[key].length > 1) warns.push(`Выгрузок barkov ${p} несколько (${roles[key].join(', ')}): посты сложены без удаления повторов.`);
     const agg = {};
@@ -82,7 +106,7 @@ for (const mk of monthDirs) {
       if (!r.byOwner) continue;
       for (const [k, v] of Object.entries(r.byOwner)) { const o = agg[k] || (agg[k] = {posts: 0, likes: 0}); o.posts += v.posts; o.likes += v.likes; }
     }
-    barkov[p] = {byOwner: agg, files: roles[key], used: new Set()};
+    barkov[p] = {byOwner: agg, files: roles[key], used: new Set(), label: 'barkov'};
   }
 
   // МАКС посты
@@ -119,7 +143,7 @@ for (const mk of monthDirs) {
     if (barkov[r.platform]) {
       const b = barkov[r.platform];
       const k = r.links.find(l => b.byOwner[l]);
-      if (k) { c.posts = b.byOwner[k].posts; c.likes = b.byOwner[k].likes; c.src.posts = c.src.likes = 'barkov'; b.used.add(k); }
+      if (k) { c.posts = b.byOwner[k].posts; c.likes = b.byOwner[k].likes; c.src.posts = c.src.likes = b.label; b.used.add(k); }
       else missPosts[r.platform].push(r.editorial);
     }
     if (r.platform === 'МАКС' && maxPosts && maxPosts.data) {
@@ -145,12 +169,14 @@ for (const mk of monthDirs) {
   for (const [p, list] of Object.entries(missPosts)) if (list.length) warns.push(`В выгрузке постов ${p} нет каналов: ${list.join(', ')} — посты н/д.`);
   for (const [p, b] of Object.entries(barkov)) {
     const foreign = Object.entries(b.byOwner).filter(([k]) => !b.used.has(k));
-    if (foreign.length) warns.push(`barkov ${p}: не наши владельцы, не учтены — ${foreign.map(([k, v]) => `${k} (${v.posts})`).join(', ')}.`);
+    if (foreign.length) warns.push(`${b.label} ${p}: не наши владельцы, не учтены — ${foreign.map(([k, v]) => `${k} (${v.posts})`).join(', ')}.`);
   }
 
   months.push({
     month: mk, label: `${L.MONTHS_LABEL[mIdx]} ${year}`, days: new Date(year, mm, 0).getDate(),
-    files: files.filter(f => !roles.other.includes(f)),
+    files: files.filter(f => !roles.other.includes(f) && !roles.popster.includes(f) && !roles.okadmin.includes(f))
+      .concat(roles.popster.length ? [`Popster: ${roles.popster.length} файлов`] : [])
+      .concat(roles.okadmin.length ? [`админка ОК: ${roles.okadmin.length} файлов`] : []),
     subsSnapshot: weekly.snapshot || null, weekSheet: weekly.sheet || null,
     warnings: warns, cells
   });

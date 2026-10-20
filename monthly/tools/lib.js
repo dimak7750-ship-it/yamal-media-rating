@@ -202,6 +202,58 @@ function parseBarkov(text, platform, monthKey, fileName) {
   return {errors, warns, byOwner};
 }
 
+/* ---------- Popster: выгрузка постов одного паблика (ВК или ТГ) ---------- */
+function parsePopster(wb, XLSX, monthKey, fileName) {
+  const errors = [], warns = [];
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(ws, {header: 1, raw: true, defval: null, blankrows: false});
+  const hdr = (rows[0] || []).map(norm);
+  const C = {page: hdr.indexOf('page url'), likes: hdr.indexOf('likes'), date: hdr.indexOf('date'), social: hdr.indexOf('social')};
+  const missing = Object.entries({page: 'Page url', likes: 'Likes', date: 'Date'}).filter(([k]) => C[k] < 0).map(([, v]) => v);
+  if (missing.length) { errors.push(`${fileName}: нет колонок ${missing.map(x => '«' + x + '»').join(', ')}.`); return {errors, warns}; }
+  const byOwner = {}; let platform = null, outside = 0, total = 0;
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i]; if (!r || !r[C.page]) continue;
+    const d = r[C.date] instanceof Date ? r[C.date].toISOString() : String(r[C.date] || '');
+    total++;
+    if (d.slice(0, 7) !== monthKey) { outside++; continue; }
+    if (C.social >= 0 && !platform) platform = {vk: 'ВК', tg: 'ТГ', ok: 'ОК'}[norm(r[C.social])] || null;
+    const k = ownerKey(r[C.page]);
+    const o = byOwner[k] || (byOwner[k] = {posts: 0, likes: 0});
+    o.posts++; o.likes += num(r[C.likes]) || 0;
+  }
+  if (!platform) platform = /_вк_/i.test(fileName) ? 'ВК' : /_тг_/i.test(fileName) ? 'ТГ' : null;
+  if (!platform) errors.push(`${fileName}: не понял площадку (нет колонки «Social» и в имени нет _ВК_/_ТГ_).`);
+  if (outside) warns.push(`${fileName}: ${outside} из ${total} постов вне месяца ${monthKey}, не учтены.`);
+  return {errors, warns, byOwner, platform};
+}
+
+/* ---------- ОК: админский экспорт группы (.xls), посты = строки листа Topics, лайки = сумма LIKES листа Actions ---------- */
+function parseOkAdmin(wb, XLSX, monthKey, fileName) {
+  const errors = [], warns = [];
+  const toKey = v => {
+    if (v instanceof Date) return v.toISOString().slice(0, 7);
+    if (typeof v === 'number') { const d = XLSX.SSF.parse_date_code(v); return `${d.y}-${String(d.m).padStart(2, '0')}`; }
+    return String(v || '').slice(0, 7);
+  };
+  const sheet = name => { const n = wb.SheetNames.find(x => norm(x) === name); return n ? XLSX.utils.sheet_to_json(wb.Sheets[n], {header: 1, raw: true, defval: null}) : null; };
+  const topics = sheet('topics'), actions = sheet('actions');
+  if (!topics || !actions) { errors.push(`${fileName}: нет листа ${!topics ? '«Topics»' : '«Actions»'}.`); return {errors, warns}; }
+  const th = topics[0].map(norm), ah = actions[0].map(norm);
+  const cD = th.indexOf('date'), cU = th.indexOf('url'), cL = ah.indexOf('likes');
+  if (cD < 0) errors.push(`${fileName}, лист Topics: нет колонки «DATE».`);
+  if (cL < 0) errors.push(`${fileName}, лист Actions: нет колонки «LIKES».`);
+  if (errors.length) return {errors, warns};
+  let gid = (fileName.match(/ok_group(\d+)/i) || [])[1];
+  if (!gid) for (const r of topics.slice(1)) { const m = String(r[cU] || '').match(/group\/(\d+)/); if (m) { gid = m[1]; break; } }
+  if (!gid) { errors.push(`${fileName}: не нашёл ID группы ОК (ни в имени файла ok_group…, ни в ссылках постов).`); return {errors, warns}; }
+  let posts = 0, likes = 0, outside = 0;
+  for (const r of topics.slice(1)) { if (r[cD] == null) continue; if (toKey(r[cD]) === monthKey) posts++; else outside++; }
+  for (const r of actions.slice(1)) { if (r[0] == null) continue; if (toKey(r[0]) === monthKey) likes += num(r[cL]) || 0; }
+  if (outside) warns.push(`${fileName}: ${outside} постов вне месяца ${monthKey}, не учтены.`);
+  return {errors, warns, byOwner: {[gid]: {posts, likes}}};
+}
+
 /* ---------- Посты МАКС (формат «Итог по каналам») ---------- */
 function parseMaxPosts(wb, XLSX, fileName) {
   const errors = [], warns = [];
@@ -244,4 +296,4 @@ function parseManual(text, fileName) {
 }
 
 module.exports = {MONTHS, MONTHS_LABEL, PLATFORMS, norm, num, parseCSV, readSemicolonTable, loadResources, ownerKey,
-  parseStat, parseWeekly, parseBarkov, parseMaxPosts, parseManual};
+  parseStat, parseWeekly, parseBarkov, parsePopster, parseOkAdmin, parseMaxPosts, parseManual};
