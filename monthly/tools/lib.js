@@ -194,9 +194,11 @@ function parseBarkov(text, platform, monthKey, fileName) {
     total++;
     if (d.slice(0, 7) !== monthKey) { outside++; continue; }
     const k = ownerKey(r[C.owner]);
-    const o = byOwner[k] || (byOwner[k] = {posts: 0, likes: 0});
+    const o = byOwner[k] || (byOwner[k] = {posts: 0, likes: 0, first: d, last: d});
     o.posts++;
     o.likes += num(r[C.likes]) || 0;
+    if (d < o.first) o.first = d;
+    if (d > o.last) o.last = d;
   }
   if (outside) warns.push(`${fileName}: ${outside} из ${total} постов вне месяца ${monthKey}, не учтены.`);
   return {errors, warns, byOwner};
