@@ -3,104 +3,121 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" href="data:,">
+<link rel="icon" href="../logo.png">
 <title>Соцсети редакций — итоги месяца</title>
 <style>
-:root {
-  color-scheme: light;
-  --bg: #f4f4f2; --surface: #fcfcfb; --line: #e2e1dc; --line-2: #cfcec8;
-  --text: #0b0b0b; --text-2: #52514e; --muted: #7a7974;
-  --up: #1a7f37; --down: #c4312f; --flag: #9a6700; --flag-bg: #fff5d6;
-  --accent: #2a78d6;
-  --p-vk: #2a78d6; --p-ok: #eb6834; --p-tg: #1baf7a; --p-max: #eda100;
+@font-face{font-family:Manrope;font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/manrope-cyrillic-400-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:Manrope;font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/manrope-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Manrope;font-style:normal;font-weight:500;font-display:swap;src:url(../fonts/manrope-cyrillic-500-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:Manrope;font-style:normal;font-weight:500;font-display:swap;src:url(../fonts/manrope-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Manrope;font-style:normal;font-weight:600;font-display:swap;src:url(../fonts/manrope-cyrillic-600-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:Manrope;font-style:normal;font-weight:600;font-display:swap;src:url(../fonts/manrope-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Manrope;font-style:normal;font-weight:700;font-display:swap;src:url(../fonts/manrope-cyrillic-700-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:Manrope;font-style:normal;font-weight:700;font-display:swap;src:url(../fonts/manrope-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Manrope;font-style:normal;font-weight:800;font-display:swap;src:url(../fonts/manrope-cyrillic-800-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:Manrope;font-style:normal;font-weight:800;font-display:swap;src:url(../fonts/manrope-latin-800-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+:root{
+  --bg:#f4f6f9; --surface:#ffffff; --surface-2:#f7f9fc; --text:#0f1b2d; --text-2:#4a5568; --muted:#7a8699;
+  --line:#e2e7ee; --line-2:#c9d1dc; --grid:#edf0f4; --brand:#001b39; --accent:#0096d6; --accent-soft:#e3f4fb;
+  --up:#1f7a33; --down:#c53030; --flag:#7a5300; --flag-bg:#fff6e0; --hl:#fff3c4;
+  --p-vk:#2a78d6; --p-max:#7c4ddb; --p-tg:#17a673; --p-ok:#ee7a1c;
+  --shadow:0 1px 2px rgba(15,27,45,.04),0 4px 14px rgba(15,27,45,.05);
 }
-@media (prefers-color-scheme: dark) {
-  :root:where(:not([data-theme="light"])) {
-    color-scheme: dark;
-    --bg: #121211; --surface: #1a1a19; --line: #2d2d2b; --line-2: #3d3d3a;
-    --text: #f0efec; --text-2: #c3c2b7; --muted: #8f8e88;
-    --up: #4cc26a; --down: #ff7b72; --flag: #e3b341; --flag-bg: #3a2f10;
-    --accent: #3987e5;
-    --p-vk: #3987e5; --p-ok: #d95926; --p-tg: #199e70; --p-max: #c98500;
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0b1420; --surface:#121e2e; --surface-2:#172538; --text:#e8eef6; --text-2:#b4c0cf; --muted:#8593a6;
+    --line:#22324a; --line-2:#34465f; --grid:#1b2a3e; --accent:#33b8ee; --accent-soft:#0f2c40;
+    --up:#3fbf5a; --down:#f07070; --flag:#f3d58a; --flag-bg:#3a2e10; --hl:#3a3212;
+    --p-vk:#3f8ceb; --p-max:#9b74ee; --p-tg:#26b884; --p-ok:#f08a35; --shadow:none;
   }
 }
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --bg: #121211; --surface: #1a1a19; --line: #2d2d2b; --line-2: #3d3d3a;
-  --text: #f0efec; --text-2: #c3c2b7; --muted: #8f8e88;
-  --up: #4cc26a; --down: #ff7b72; --flag: #e3b341; --flag-bg: #3a2f10;
-  --accent: #3987e5;
-  --p-vk: #3987e5; --p-ok: #d95926; --p-tg: #199e70; --p-max: #c98500;
+:root[data-theme="dark"]{
+  --bg:#0b1420; --surface:#121e2e; --surface-2:#172538; --text:#e8eef6; --text-2:#b4c0cf; --muted:#8593a6;
+  --line:#22324a; --line-2:#34465f; --grid:#1b2a3e; --accent:#33b8ee; --accent-soft:#0f2c40;
+  --up:#3fbf5a; --down:#f07070; --flag:#f3d58a; --flag-bg:#3a2e10; --hl:#3a3212;
+  --p-vk:#3f8ceb; --p-max:#9b74ee; --p-tg:#26b884; --p-ok:#f08a35; --shadow:none;
 }
-* { box-sizing: border-box; }
-html, body { margin: 0; }
-body { background: var(--bg); color: var(--text); font: 14px/1.45 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
-.wrap { max-width: 1180px; margin: 0 auto; padding: 16px; }
-header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 8px; }
-h1 { font-size: 20px; margin: 0; font-weight: 650; }
-h2 { font-size: 16px; margin: 0 0 10px; font-weight: 650; }
-.sub { color: var(--text-2); font-size: 13px; }
-.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-select, button { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--line-2); border-radius: 6px; padding: 5px 8px; }
-button { cursor: pointer; }
-button:hover, select:hover { border-color: var(--text-2); }
-.seg { display: inline-flex; flex-wrap: wrap; max-width: 100%; border: 1px solid var(--line-2); border-radius: 6px; overflow: hidden; }
-.seg button { border: 0; border-radius: 0; border-right: 1px solid var(--line-2); }
-.seg button:last-child { border-right: 0; }
-.seg button.on { background: var(--text); color: var(--surface); }
-section.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin: 12px 0; }
-.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
-.tile { border: 1px solid var(--line); border-radius: 6px; padding: 10px; }
-.tile .k { color: var(--text-2); font-size: 12px; }
-.tile .v { font-size: 22px; font-weight: 650; margin: 2px 0; font-variant-numeric: tabular-nums; }
-.tile .d { font-size: 12px; font-variant-numeric: tabular-nums; }
-.tile .n { color: var(--muted); font-size: 11px; margin-top: 4px; }
-.up { color: var(--up); } .down { color: var(--down); } .na { color: var(--muted); }
-.tbl-wrap { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
-th, td { padding: 5px 8px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
-th { font-weight: 600; color: var(--text-2); font-size: 12px; position: sticky; top: 0; background: var(--surface); }
-th.sort { cursor: pointer; user-select: none; }
-th.sort:hover { color: var(--text); }
-td:first-child, th:first-child, td.l, th.l { text-align: left; }
-tr.block td { font-weight: 650; background: var(--bg); text-align: left; }
-tr.total td { font-weight: 650; border-top: 1px solid var(--line-2); }
-.rank { color: var(--muted); width: 28px; }
-.flag { color: var(--flag); cursor: help; font-size: 12px; margin-left: 4px; }
-.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-@media (max-width: 760px) { .row2 { grid-template-columns: 1fr; } }
-.list { margin: 0; padding-left: 18px; }
-.list li { margin: 3px 0; }
-.notes li { margin: 4px 0; }
-.notes .who { font-weight: 600; }
-.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--text-2); margin: 6px 0; }
-.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
-.stack { display: flex; height: 22px; gap: 2px; margin: 4px 0 10px; }
-.stack div { height: 100%; min-width: 2px; }
-.stack div:first-child { border-radius: 4px 0 0 4px; } .stack div:last-child { border-radius: 0 4px 4px 0; }
-.stack-label { font-size: 12px; color: var(--text-2); }
-#tip { position: fixed; pointer-events: none; background: var(--text); color: var(--surface); padding: 6px 8px; border-radius: 5px; font-size: 12px; line-height: 1.35; z-index: 10; display: none; max-width: 280px; }
-.err { background: var(--flag-bg); border: 1px solid var(--flag); padding: 10px; border-radius: 6px; }
-.small { font-size: 12px; color: var(--text-2); }
-svg text { fill: var(--text-2); font-size: 11px; }
-.hint { color: var(--muted); font-size: 12px; margin-top: 6px; }
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:15px/1.45 Manrope,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,select{font:inherit;color:var(--text)}
+header.top{background:var(--brand);color:#fff}
+header.top .in{max-width:1320px;margin:0 auto;padding:16px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+header.top img{width:44px;height:44px}
+header.top h1{font-size:20px;margin:0;font-weight:800;letter-spacing:-.01em}
+header.top p{margin:0;color:#9fd8f2;font-size:13px}
+.hact{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.hbtn{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:9px;padding:7px 12px;font-weight:600;cursor:pointer;white-space:nowrap;text-decoration:none;font-size:14px}
+.hbtn:hover{background:rgba(255,255,255,.08)}
+header.top select{background:#00b4ec;border:1px solid #00b4ec;color:#001b39;border-radius:9px;padding:7px 11px;font-weight:700}
+.wrap{max-width:1320px;margin:0 auto;padding:6px 16px 60px}
+h2{font-size:17px;margin:0 0 10px;font-weight:800}
+.sub{color:var(--muted);font-size:13px}
+.controls{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center}
+select{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:7px 11px;cursor:pointer}
+.seg{display:inline-flex;flex-wrap:wrap;gap:3px;align-items:center;max-width:100%}
+.seg button{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:5px 10px;font-size:13px;cursor:pointer;color:var(--text-2)}
+.seg button.on{border-color:var(--accent);color:var(--accent);font-weight:700}
+section.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:16px 0;box-shadow:var(--shadow)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px 16px;box-shadow:var(--shadow)}
+.tile:first-child{background:var(--brand);border-color:var(--brand);color:#fff}
+.tile:first-child .k,.tile:first-child .n{color:#9fd8f2}
+.tile:first-child .up{color:#7ee2a0}.tile:first-child .down{color:#ff9d9d}.tile:first-child .na{color:#9fd8f2}
+.tile .k{font-weight:800;font-size:14px}
+.tile .v{font-size:27px;font-weight:800;letter-spacing:-.01em;margin:6px 0 2px;font-variant-numeric:tabular-nums;line-height:1.15}
+.tile .d{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+.tile .n{color:var(--muted);font-size:12px;margin-top:4px;font-weight:500}
+.up{color:var(--up)}.down{color:var(--down)}.na{color:var(--muted)}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{padding:6px 8px;border-bottom:1px solid var(--grid);text-align:right;white-space:nowrap}
+th{font-weight:700;color:var(--muted);font-size:12px;position:sticky;top:0;background:var(--surface)}
+th.sort{cursor:pointer;user-select:none}
+th.sort:hover{color:var(--text)}
+td:first-child,th:first-child,td.l,th.l{text-align:left}
+tbody tr:hover td,tr:hover td{background:var(--surface-2)}
+tr.block td{font-weight:800;background:var(--surface-2);text-align:left;color:var(--text);border-bottom:1px solid var(--line)}
+tr.total td{font-weight:800;border-top:1px solid var(--line-2)}
+td.l{font-weight:600}
+.rank{color:var(--text-2);font-weight:700;width:28px}
+.flag{color:var(--flag);background:var(--flag-bg);border-radius:5px;padding:0 4px;cursor:help;font-size:11px;margin-left:6px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.row2{grid-template-columns:1fr}}
+.list{margin:0;padding-left:20px}
+.list li{margin:4px 0}
+.notes{margin:0;padding-left:18px}
+.notes li{margin:5px 0;font-size:13.5px}
+.notes .who{font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--text-2);margin:6px 0}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.stack{display:flex;height:16px;gap:2px;margin:4px 0 12px}
+.stack div{height:100%;min-width:2px}
+.stack div:first-child{border-radius:4px 0 0 4px}.stack div:last-child{border-radius:0 4px 4px 0}
+.stack-label{font-size:12.5px;color:var(--text-2)}
+#tip{position:fixed;pointer-events:none;background:var(--brand);color:#fff;padding:8px 10px;border-radius:8px;font-size:12.5px;line-height:1.45;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:60;display:none;max-width:300px}
+.err{background:var(--flag-bg);color:var(--flag);padding:9px 14px;border-radius:10px;margin-top:12px}
+.small{font-size:12.5px;color:var(--text-2)}
+svg text{fill:var(--muted);font-size:11px;font-family:inherit}
+.hint{color:var(--muted);font-size:12.5px;margin-top:8px}
 </style>
 </head>
 <body>
+<header class="top"><div class="in">
+  <img alt="" src="../logo.png">
+  <div>
+    <h1>Соцсети редакций — итоги месяца</h1>
+    <p id="meta">загрузка…</p>
+  </div>
+  <div class="hact">
+    <button class="hbtn" id="prevM" title="Предыдущий месяц">‹</button>
+    <select id="month"></select>
+    <button class="hbtn" id="nextM" title="Следующий месяц">›</button>
+    <a class="hbtn" href="../">Недельный рейтинг</a>
+    <button class="hbtn" id="theme" title="Светлая / тёмная тема">◐ Тема</button>
+  </div>
+</div></header>
 <div class="wrap">
-  <header>
-    <div>
-      <h1>Соцсети редакций — итоги месяца</h1>
-      <div class="sub" id="meta">загрузка…</div>
-    </div>
-    <div class="controls" style="margin-left:auto">
-      <button id="prevM" title="Предыдущий месяц">‹</button>
-      <select id="month"></select>
-      <button id="nextM" title="Следующий месяц">›</button>
-      <button id="theme" title="Светлая / тёмная тема">◐</button>
-    </div>
-  </header>
-
   <section class="card">
     <div class="controls" style="justify-content:space-between;margin-bottom:10px">
       <h2 style="margin:0">1. Сводка</h2>
