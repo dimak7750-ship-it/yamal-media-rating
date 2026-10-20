@@ -265,7 +265,7 @@ function render() {
   document.getElementById('month').value = st.mi;
   const snap = m.subsSnapshot ? m.subsSnapshot.split('-').reverse().join('.') : 'н/д';
   document.getElementById('meta').innerHTML =
-    `${esc(m.label)} · сравнение с ${pm ? esc(pm.label.toLowerCase()) : '— (прошлого месяца нет в данных)'} · подписчики на ${snap} · обновлено ${new Date(D.updated).toLocaleDateString('ru-RU')}`;
+    `${esc(m.label)} · прошлый месяц для сравнения: ${pm ? esc(pm.label.toLowerCase()) : '— (прошлого месяца нет в данных)'} · подписчики на ${snap} · обновлено ${new Date(D.updated).toLocaleDateString('ru-RU')}`;
   location.hash = m.month;
   renderTiles(m, pm); renderPlatforms(m, pm); renderTable(m, pm); renderBW(m, pm); renderNotes(m);
 }
