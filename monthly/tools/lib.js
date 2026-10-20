@@ -216,13 +216,18 @@ function parsePopster(wb, XLSX, monthKey, fileName) {
   const byOwner = {}; let platform = null, outside = 0, total = 0;
   for (let i = 1; i < rows.length; i++) {
     const r = rows[i]; if (!r || !r[C.page]) continue;
-    const d = r[C.date] instanceof Date ? r[C.date].toISOString() : String(r[C.date] || '');
+    const v = r[C.date];
+    let d;
+    if (v instanceof Date) d = v.toISOString();
+    else if (typeof v === 'number') { const t = XLSX.SSF.parse_date_code(v); d = `${t.y}-${String(t.m).padStart(2, '0')}-${String(t.d).padStart(2, '0')} ${String(t.H).padStart(2, '0')}:${String(t.M).padStart(2, '0')}`; }
+    else d = String(v || '');
     total++;
     if (d.slice(0, 7) !== monthKey) { outside++; continue; }
     if (C.social >= 0 && !platform) platform = {vk: 'ВК', tg: 'ТГ', ok: 'ОК'}[norm(r[C.social])] || null;
     const k = ownerKey(r[C.page]);
-    const o = byOwner[k] || (byOwner[k] = {posts: 0, likes: 0});
+    const o = byOwner[k] || (byOwner[k] = {posts: 0, likes: 0, first: d, last: d});
     o.posts++; o.likes += num(r[C.likes]) || 0;
+    if (d < o.first) o.first = d; if (d > o.last) o.last = d;
   }
   if (!platform) platform = /_вк_/i.test(fileName) ? 'ВК' : /_тг_/i.test(fileName) ? 'ТГ' : null;
   if (!platform) errors.push(`${fileName}: не понял площадку (нет колонки «Social» и в имени нет _ВК_/_ТГ_).`);
@@ -249,11 +254,19 @@ function parseOkAdmin(wb, XLSX, monthKey, fileName) {
   let gid = (fileName.match(/ok_group(\d+)/i) || [])[1];
   if (!gid) for (const r of topics.slice(1)) { const m = String(r[cU] || '').match(/group\/(\d+)/); if (m) { gid = m[1]; break; } }
   if (!gid) { errors.push(`${fileName}: не нашёл ID группы ОК (ни в имени файла ok_group…, ни в ссылках постов).`); return {errors, warns}; }
-  let posts = 0, likes = 0, outside = 0;
-  for (const r of topics.slice(1)) { if (r[cD] == null) continue; if (toKey(r[cD]) === monthKey) posts++; else outside++; }
+  const toDay = v => {
+    if (v instanceof Date) return v.toISOString().slice(0, 10);
+    if (typeof v === 'number') { const d = XLSX.SSF.parse_date_code(v); return `${d.y}-${String(d.m).padStart(2, '0')}-${String(d.d).padStart(2, '0')}`; }
+    return String(v || '').slice(0, 10);
+  };
+  let posts = 0, likes = 0, outside = 0, first = null;
+  for (const r of topics.slice(1)) {
+    if (r[cD] == null) continue;
+    if (toKey(r[cD]) === monthKey) { posts++; const d = toDay(r[cD]); if (!first || d < first) first = d; } else outside++;
+  }
   for (const r of actions.slice(1)) { if (r[0] == null) continue; if (toKey(r[0]) === monthKey) likes += num(r[cL]) || 0; }
   if (outside) warns.push(`${fileName}: ${outside} постов вне месяца ${monthKey}, не учтены.`);
-  return {errors, warns, byOwner: {[gid]: {posts, likes}}};
+  return {errors, warns, byOwner: {[gid]: {posts, likes, first: first || monthKey + '-01'}}};
 }
 
 /* ---------- Посты МАКС (формат «Итог по каналам») ---------- */

@@ -79,49 +79,54 @@ for (const mk of monthDirs) {
     if (Math.abs(gap) > 3) warns.push(`Подписчики сняты ${weekly.snapshot.split('-').reverse().join('.')} — ${Math.abs(gap)} дн. ${gap > 0 ? 'после' : 'до'} конца месяца.`);
   }
 
-  // посты и лайки ВК/ТГ/ОК: barkov; если barkov по площадке нет — Popster (ВК, ТГ) и админские выгрузки (ОК)
+  // посты и лайки ВК/ТГ/ОК: barkov, Popster (ВК, ТГ), админские выгрузки ОК.
+  // Если по каналу есть несколько выгрузок, берётся одна — с самым ранним постом в месяце
+  // (при равенстве — где постов больше). Выгрузки не складываются, чтобы не задвоить посты.
   const barkov = {};
-  const alt = {ВК: {byOwner: {}, files: []}, ТГ: {byOwner: {}, files: []}, ОК: {byOwner: {}, files: []}};
-  const addTo = (dst, src) => { for (const [k, v] of Object.entries(src)) { const o = dst[k] || (dst[k] = {posts: 0, likes: 0}); o.posts += v.posts; o.likes += v.likes; } };
+  const pool = {ВК: {}, ТГ: {}, ОК: {}};
+  // ключ канала приводится к первой ссылке из справочника, чтобы club123 и короткое имя одного паблика считались одним каналом
+  const canon = (p, k) => { const r = resources.find(x => x.platform === p && x.links.includes(k)); return r ? r.links[0] : k; };
+  const offer = (p, byOwner, label, file) => {
+    for (const [k0, v] of Object.entries(byOwner)) {
+      const k = canon(p, k0);
+      const o = pool[p][k];
+      if (!o || v.first < o.first || (v.first === o.first && v.posts > o.posts)) pool[p][k] = {...v, label, file};
+    }
+  };
+  for (const [p, key] of [['ВК', 'vk'], ['ТГ', 'tg'], ['ОК', 'ok']])
+    for (const f of roles[key].slice().sort()) { const r = collect(L.parseBarkov(readTxt(f), p, mk, f)); if (r.byOwner) offer(p, r.byOwner, 'barkov', f); }
   for (const f of roles.popster) {
     const r = collect(L.parsePopster(readWb(f), XLSX, mk, path.basename(f)));
-    if (r.byOwner && r.platform) { addTo(alt[r.platform].byOwner, r.byOwner); alt[r.platform].files.push(f); }
+    if (r.byOwner && r.platform) offer(r.platform, r.byOwner, 'Popster', f);
   }
   for (const f of roles.okadmin) {
     const r = collect(L.parseOkAdmin(readWb(f), XLSX, mk, path.basename(f)));
-    if (r.byOwner) { addTo(alt['ОК'].byOwner, r.byOwner); alt['ОК'].files.push(f); }
+    if (r.byOwner) offer('ОК', r.byOwner, 'админка ОК', f);
   }
-  for (const [p, key] of [['ВК', 'vk'], ['ТГ', 'tg'], ['ОК', 'ok']]) {
-    if (!roles[key].length && alt[p].files.length) {
-      barkov[p] = {byOwner: alt[p].byOwner, files: alt[p].files, used: new Set(), label: p === 'ОК' ? 'админка ОК' : 'Popster'};
-      warns.push(`Посты и лайки ${p} — из ${p === 'ОК' ? 'админских выгрузок ОК (посты = лист Topics, лайки = LIKES листа Actions)' : 'выгрузок Popster'}: ${alt[p].files.length} файлов.`);
-      continue;
-    }
-    if (roles[key].length && alt[p].files.length) warns.push(`По ${p} есть и barkov, и ${p === 'ОК' ? 'админка' : 'Popster'} — взят barkov.`);
-    if (!roles[key].length) { warns.push(`Нет выгрузки barkov ${p}: посты, отдача и ER ${p} — н/д.`); continue; }
-    // если выгрузок по площадке несколько, по каждому каналу берётся одна — с самым ранним постом в месяце
-    // (при равенстве — где постов больше, затем более свежая). Файлы не складываются, чтобы не задвоить посты.
-    const agg = {}, chosen = {};
-    for (const f of roles[key].slice().sort()) {
-      const r = collect(L.parseBarkov(readTxt(f), p, mk, f));
-      if (!r.byOwner) continue;
-      for (const [k, v] of Object.entries(r.byOwner)) {
-        const o = agg[k];
-        if (!o || v.first < o.first || (v.first === o.first && v.posts >= o.posts)) { agg[k] = v; chosen[k] = f; }
-      }
-    }
-    if (roles[key].length > 1) {
-      const byFile = {}; for (const [k, f] of Object.entries(chosen)) (byFile[f] = byFile[f] || []).push(k);
-      warns.push(`Выгрузок barkov ${p} несколько — по каждому каналу взята самая полная: ` + Object.entries(byFile).map(([f, ks]) => `${f} (${ks.length} кан.)`).join('; ') + '.');
-    }
-    // обрезанная выгрузка: канал с сотней и больше постов, у которого первый пост месяца позже 4-го числа
-    const cut = [];
+  // просмотры прошлого месяца из той же «Статистики» — чтобы отличить обрезанную выгрузку от канала, который начал выходить в этом месяце
+  let statPrevM = null;
+  if (roles.stat.length && mIdx > 0) { const r = L.parseStat(readWb(roles.stat[0]), XLSX, year, mIdx - 1, roles.stat[0]); statPrevM = r.data; }
+  const nameOf = (p, k) => (resources.find(r => r.platform === p && r.links.includes(k)) || {}).editorial || k;
+  for (const p of ['ВК', 'ТГ', 'ОК']) {
+    const agg = pool[p];
+    if (!Object.keys(agg).length) { warns.push(`Нет выгрузки постов ${p} (barkov / Popster${p === 'ОК' ? ' / админка ОК' : ''}): посты, отдача и ER ${p} — н/д.`); continue; }
+    const byLabel = {};
+    for (const [k, v] of Object.entries(agg)) if (resources.some(r => r.platform === p && r.links.includes(k))) (byLabel[v.label] = byLabel[v.label] || []).push(nameOf(p, k));
+    warns.push(`Посты и лайки ${p}: ` + Object.entries(byLabel).map(([l, ks]) => `${l} — ${ks.length} кан` + (Object.keys(byLabel).length > 1 && ks.length <= 5 ? `. (${ks.join(', ')})` : '')).join('; ') + '.');
+    // обрезанная выгрузка: канал с сотней и больше постов, первый пост месяца позже 4-го числа, а в прошлом месяце у канала были просмотры
+    const cut = [], late = [];
     for (const [k, v] of Object.entries(agg)) {
-      const day = +v.first.slice(8, 10);
-      if (v.posts >= 100 && day > 4) { cut.push(`${(resources.find(r => r.platform === p && r.links.includes(k)) || {}).editorial || k} (посты с ${v.first.slice(8, 10)}.${v.first.slice(5, 7)}, ${v.posts} шт.)`); agg[k] = {posts: null, likes: null, cut: true}; }
+      const day = +String(v.first).slice(8, 10);
+      if (!(v.posts >= 100 && day > 4)) continue;
+      const res = resources.find(r => r.platform === p && r.links.includes(k));
+      const pv = res && res.stat && statPrevM && statPrevM[p][res.stat] ? statPrevM[p][res.stat].views : null;
+      const when = `посты с ${String(v.first).slice(8, 10)}.${String(v.first).slice(5, 7)}, ${v.posts} шт.`;
+      if (pv) { cut.push(`${nameOf(p, k)} (${when})`); agg[k] = {posts: null, likes: null, cut: true}; }
+      else late.push(`${nameOf(p, k)} (${when}, в прошлом месяце просмотров не было)`);
     }
-    if (cut.length) warns.push(`barkov ${p}: выгрузка обрезана, начало месяца не попало — посты и лайки н/д: ${cut.join(', ')}. Нужно перевыгрузить эти каналы отдельно.`);
-    barkov[p] = {byOwner: agg, files: roles[key], used: new Set(), label: 'barkov'};
+    if (cut.length) warns.push(`${p}: выгрузка обрезана, начало месяца не попало — посты и лайки н/д: ${cut.join(', ')}.`);
+    if (late.length) warns.push(`${p}: канал начал выходить в середине месяца, посты взяты как есть: ${late.join(', ')}.`);
+    barkov[p] = {byOwner: agg, used: new Set()};
   }
 
   // МАКС посты
@@ -158,7 +163,7 @@ for (const mk of monthDirs) {
     if (barkov[r.platform]) {
       const b = barkov[r.platform];
       const k = r.links.find(l => b.byOwner[l]);
-      if (k) { b.used.add(k); if (!b.byOwner[k].cut) { c.posts = b.byOwner[k].posts; c.likes = b.byOwner[k].likes; c.src.posts = c.src.likes = b.label; } }
+      if (k) { b.used.add(k); if (!b.byOwner[k].cut) { c.posts = b.byOwner[k].posts; c.likes = b.byOwner[k].likes; c.src.posts = c.src.likes = b.byOwner[k].label; } }
       else missPosts[r.platform].push(r.editorial);
     }
     if (r.platform === 'МАКС' && maxPosts && maxPosts.data) {
@@ -184,7 +189,7 @@ for (const mk of monthDirs) {
   for (const [p, list] of Object.entries(missPosts)) if (list.length) warns.push(`В выгрузке постов ${p} нет каналов: ${list.join(', ')} — посты н/д.`);
   for (const [p, b] of Object.entries(barkov)) {
     const foreign = Object.entries(b.byOwner).filter(([k]) => !b.used.has(k));
-    if (foreign.length) warns.push(`${b.label} ${p}: не наши владельцы, не учтены — ${foreign.map(([k, v]) => `${k} (${v.posts})`).join(', ')}.`);
+    if (foreign.length) warns.push(`Посты ${p}: не наши владельцы, не учтены — ${foreign.map(([k, v]) => `${k} (${v.posts})`).join(', ')}.`);
   }
 
   months.push({
