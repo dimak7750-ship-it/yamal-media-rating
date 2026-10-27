@@ -100,6 +100,57 @@ td.l{font-weight:600}
 .small{font-size:12.5px;color:var(--text-2)}
 svg text{fill:var(--muted);font-size:11px;font-family:inherit}
 .hint{color:var(--muted);font-size:12.5px;margin-top:8px}
+/* карточка редакции — стили как в недельном рейтинге */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin:16px 0 0}
+.search{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:7px 11px;width:220px;font:inherit;color:var(--text)}
+.nmb{border:0;background:none;padding:0;text-align:left;font:inherit;font-weight:600;color:var(--text);cursor:pointer}
+.nmb:hover{color:var(--accent);text-decoration:underline}
+.back{position:fixed;inset:0;background:rgba(0,10,25,.45);z-index:40}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(680px,100vw);background:var(--bg);z-index:41;overflow:auto;box-shadow:-12px 0 40px rgba(0,0,0,.25);padding:0 0 30px}
+.drawer .dh{background:var(--brand);color:#fff;padding:16px 18px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:1}
+.drawer .dh h2{margin:0;font-size:20px;font-weight:800}
+.drawer .dh small{color:#9fd8f2;display:block;font-size:12.5px}
+.drawer .dh button{background:none;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;white-space:nowrap}
+.drawer .dh #cardClose{margin-left:auto}
+.drawer .dh .cmn{display:flex;align-items:center;gap:6px;margin-top:8px}
+.drawer .dh .cmn button{padding:2px 9px;font-size:15px;line-height:1.2}
+.drawer .dh .cmn button:disabled{opacity:.35;cursor:default}
+.drawer .dh .cmn span{font-size:13px;font-weight:700}
+.drawer .body{padding:14px 16px;display:grid;gap:12px}
+.drawer .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);min-width:0}
+.drawer .panel h3{margin:0 0 8px;font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px}
+.drawer .panel .sub{color:var(--muted);font-size:12.5px;margin:-4px 0 8px}
+.drawer .mx-wrap{overflow-x:auto}
+.drawer table{border-collapse:collapse;width:100%;font-size:13px}
+.drawer th,.drawer td{padding:6px 6px;border-bottom:1px solid var(--grid);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;vertical-align:top}
+.drawer th{color:var(--muted);font-weight:600;font-size:12px;position:static;background:none}
+.drawer th:first-child,.drawer td:first-child{text-align:left}
+.drawer td small{display:block;font-weight:700;font-size:11.5px}
+.drawer td small.pl{color:var(--muted);font-weight:500}
+.drawer td.none{color:var(--muted);text-align:left}
+.drawer tr.total td{font-weight:800;border-top:1px solid var(--line-2)}
+.drawer tr:hover td{background:none}
+.ctiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.ctile{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--surface)}
+.ctile .k{font-weight:800;font-size:13px}
+.ctile .v{font-size:21px;font-weight:800;margin:4px 0 2px;font-variant-numeric:tabular-nums;line-height:1.15}
+.ctile .d{font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.ctile .n{color:var(--muted);font-size:11.5px;margin-top:3px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--c);flex:none;display:inline-block}
+.share{display:flex;height:12px;border-radius:4px;overflow:hidden;margin-top:6px;gap:2px}
+.share i{background:var(--c);display:block}
+.share-l{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--text-2);margin-top:8px}
+.share-l span{display:inline-flex;align-items:center;gap:5px}
+.cm{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px 14px}
+.cm h4{margin:0 0 4px;font-size:13.5px;display:flex;align-items:center;gap:6px}
+.now{margin-left:auto;font-weight:800;font-size:14px;font-variant-numeric:tabular-nums}
+svg.ch{display:block;width:100%;height:auto;overflow:visible}
+svg.ch .gl{stroke:var(--grid);stroke-width:1}
+svg.ch .curw{fill:var(--accent-soft)}
+.cnotes{margin:0;padding-left:18px;font-size:13px}
+.cnotes li{margin:4px 0}
+.empty{color:var(--muted);padding:8px 0;font-size:13px}
+@media (max-width:600px){.search{width:100%}.drawer .body{padding:12px 10px}}
 </style>
 </head>
 <body>
@@ -118,6 +169,7 @@ svg text{fill:var(--muted);font-size:11px;font-family:inherit}
   </div>
 </div></header>
 <div class="wrap">
+  <div class="toolbar"><input id="q" class="search" type="search" placeholder="Найти редакцию" list="edNames" autocomplete="off" aria-label="Найти редакцию"><datalist id="edNames"></datalist></div>
   <section class="card">
     <div class="controls" style="justify-content:space-between;margin-bottom:10px">
       <h2 style="margin:0">1. Сводка</h2>
@@ -168,6 +220,7 @@ svg text{fill:var(--muted);font-size:11px;font-family:inherit}
   </section>
 
 </div>
+<div id="drawerRoot"></div>
 <div id="tip"></div>
 
 <script>
@@ -279,8 +332,9 @@ function render() {
   const snap = m.subsSnapshot ? m.subsSnapshot.split('-').reverse().join('.') : 'н/д';
   document.getElementById('meta').innerHTML =
     `${esc(m.label)} · прошлый месяц для сравнения: ${pm ? esc(pm.label.toLowerCase()) : '— (прошлого месяца нет в данных)'} · подписчики на ${snap} · обновлено ${new Date(D.updated).toLocaleDateString('ru-RU')}`;
-  location.hash = m.month;
   renderTiles(m, pm); renderPlatforms(m, pm); renderTable(m, pm); renderBW(m, pm);
+  bindNames(document.querySelector('.wrap'));
+  if (st.card) openCard(st.card, true); else writeHash();
 }
 
 function renderTiles(m, pm) {
@@ -423,7 +477,7 @@ function renderTable(m, pm) {
     for (const r of rows) {
       const n = b === 'Муниципальные' && r.cur != null ? rk.indexOf(r) + 1 : '';
       const fl = '';
-      h += `<tr><td class="rank">${n}</td><td class="l">${esc(r.name)}${fl}</td><td>${fmt(r.prev)}</td><td>${fmt(r.cur)}</td>
+      h += `<tr><td class="rank">${n}</td><td class="l">${nameBtn(r.name)}${fl}</td><td>${fmt(r.prev)}</td><td>${fmt(r.cur)}</td>
         <td class="${cls(r.diff)}">${r.diff == null ? 'н/д' : (k === 'er' ? sign(r.diff, x => fDec(x, 2)) : sign(r.diff, fInt))}</td>
         <td class="${cls(r.pct)}">${fPct(r.pct)}${r.partial ? ` <span data-tip="${esc(r.note || 'нет цифры в одном из месяцев')}">✱</span>` : ''}</td></tr>`;
     }
@@ -452,18 +506,183 @@ function renderBW(m, pm) {
     return {name: e.name, v, vp, p: cv.pct, partial: cv.partial, vol: pct(po, pop), yld: pct(y, yp), on: both.map(x => x[1])};
   }).filter(r => r.p != null);
   rows.sort((a, b) => b.p - a.p);
-  const line = r => `<li><b>${esc(r.name)}</b> <span class="${cls(r.p)}">${fPct(r.p)}</span>` +
+  const line = r => `<li><b>${nameBtn(r.name)}</b> <span class="${cls(r.p)}">${fPct(r.p)}</span>` +
     (r.vol != null ? ` <span class="small">· выпуск ${fPct(r.vol)}, отдача ${fPct(r.yld)} (${r.on.join(', ')})</span>` : ' <span class="small">· посты н/д</span>') + '</li>';
   const n = Math.min(4, Math.floor(rows.length / 2));
   document.getElementById('best').innerHTML = pm && rows.length ? rows.slice(0, n).map(line).join('') : '<li class="na">нет данных для сравнения</li>';
   document.getElementById('worst').innerHTML = pm && rows.length ? rows.slice(-n).reverse().map(line).join('') : '<li class="na">нет данных для сравнения</li>';
   const t = document.getElementById('bwTable');
   t.innerHTML = '<tr><th class="l">Редакция</th><th>Просмотры, прошлый</th><th>Просмотры, текущий</th><th>%</th><th>Выпуск, %</th><th>Отдача, %</th><th class="l">Посты по</th></tr>' +
-    rows.map(r => `<tr><td>${esc(r.name)}</td><td>${fInt(r.vp)}</td><td>${fInt(r.v)}</td><td class="${cls(r.p)}">${fPct(r.p)}${r.partial ? ' ✱' : ''}</td>
+    rows.map(r => `<tr><td>${nameBtn(r.name)}</td><td>${fInt(r.vp)}</td><td>${fInt(r.v)}</td><td class="${cls(r.p)}">${fPct(r.p)}${r.partial ? ' ✱' : ''}</td>
       <td class="${cls(r.vol)}">${fPct(r.vol)}</td><td class="${cls(r.yld)}">${fPct(r.yld)}</td><td class="l small">${r.on.join(', ') || 'н/д'}</td></tr>`).join('');
   document.getElementById('bwHint').textContent = 'Просмотры — сумма по всем площадкам редакции. Выпуск и отдача — только по площадкам, где посты есть в обоих месяцах (указаны справа).';
 }
 
+
+/* ---------- карточка редакции ----------
+   Берёт те же функции, что и таблицы страницы (cell, agg, cmp), и ничего не считает по-своему. */
+const BLOCK1 = {Муниципальные: 'муниципальная', Окружные: 'окружная', Тематические: 'тематическая'};
+const BLOCK_GEN = {Муниципальные: 'муниципальных', Окружные: 'окружных', Тематические: 'тематических'};
+const CARD_METRICS = [['views', 'Просмотры'], ['posts', 'Посты'], ['yield', 'Отдача'], ['er', 'ER'], ['subs', 'Подписчики']];
+const MLABEL = {views: 'Просмотры', reach: 'Охваты', posts: 'Посты', yield: 'Отдача поста', er: 'ER', subs: 'Подписчики'};
+st.card = null; st.cardMetric = 'views';
+
+/* место в своём блоке: значения те же, что в таблице «Редакции» с тем же фильтром площадки */
+function rankIn(m, pm, e, plat, k, byDiff) {
+  const eds = D.editorials.filter(x => x.block === e.block && platsOf(x, plat).length);
+  const vals = eds.map(x => { const c = cmp(m, pm, platsOf(x, plat).map(p => [x.name, p]), k); return {n: x.name, v: byDiff ? c.diff : c.cur}; })
+    .filter(x => x.v != null).sort((a, b) => b.v - a.v);
+  const i = vals.findIndex(x => x.n === e.name);
+  return i < 0 ? null : {r: i + 1, of: vals.length};
+}
+const star = c => c.partial ? ` <span data-tip="${esc(c.note)}">✱</span>` : '';
+const dTxt = (k, c) => k === 'er' ? (c.diff == null ? 'н/д' : sign(c.diff, x => fDec(x, 2)) + ' п.п.') : fPct(c.pct);
+const dCls = (k, c) => k === 'er' ? cls(c.diff) : cls(c.pct);
+
+function miniChart(vals, labels, cur, color, k, title) {
+  const W = 300, H = 120, ml = 46, mr = 18, mt = 10, mb = 22;
+  const ys = vals.filter(v => v != null);
+  if (!ys.length) return '<div class="empty">нет данных</div>';
+  let lo = Math.min(0, ...ys), hi = Math.max(...ys); if (hi === lo) hi = lo + 1;
+  const n = vals.length;
+  const X = i => ml + (n === 1 ? (W - ml - mr) / 2 : i * (W - ml - mr) / (n - 1));
+  const Y = v => mt + (hi - v) / (hi - lo) * (H - mt - mb);
+  const ft = v => k === 'er' ? fDec(v, 2) + '%' : fBig(v).replace(' тыс.', 'т').replace(' млн', 'м');
+  let s = `<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">`;
+  s += `<rect class="curw" x="${X(cur) - 14}" y="${mt}" width="28" height="${H - mt - mb}" rx="4"/>`;
+  for (const t of [lo, (lo + hi) / 2, hi]) s += `<line class="gl" x1="${ml}" x2="${W - mr}" y1="${Y(t)}" y2="${Y(t)}"/><text x="${ml - 6}" y="${Y(t) + 4}" text-anchor="end">${ft(t)}</text>`;
+  labels.forEach((l, i) => { s += `<text x="${X(i)}" y="${H - 6}" text-anchor="middle"${i === cur ? ' style="fill:var(--text);font-weight:700"' : ''}>${esc(l)}</text>`; });
+  let d = '', pen = false;
+  vals.forEach((v, i) => { if (v != null) { d += (pen ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1); pen = true; } else pen = false; });
+  s += `<path d="${d}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  vals.forEach((v, i) => { if (v != null) s += `<circle cx="${X(i)}" cy="${Y(v)}" r="${i === cur ? 5 : 3.5}" fill="${color}" stroke="var(--surface)" stroke-width="1.5" data-tip="${esc(title)} · ${esc(labels[i])}<br>${fMetric(k, v)}"/>`; });
+  return s + '</svg>';
+}
+
+function openCard(name, refresh) {
+  const e = D.editorials.find(x => x.name === name);
+  if (!e) { closeCard(); return; }
+  st.card = name;
+  const m = D.months[st.mi], pm = prevOf(st.mi), ppm = pm ? prevOf(st.mi - 1) : null;
+  const all = e.platforms.map(p => [name, p]);
+  const notes = [];
+  const T = k => cmp(m, pm, all, k);
+
+  // 1. итог по всем площадкам — то же, что строка редакции в таблице «Редакции» при фильтре «Все»
+  const tile = (k, extra = '') => {
+    const c = T(k);
+    if (c.partial) notes.push(`${MLABEL[k]} (все площадки): ${c.note}.`);
+    return `<div class="ctile" data-t="${k}"><div class="k">${MLABEL[k]}${k === 'reach' ? ' ВК + ОК' : ''}</div><div class="v" data-v>${fMetric(k, c.cur)}</div>
+      <div class="d ${dCls(k, c)}" data-d>${dTxt(k, c)}${star(c)}</div>${extra}</div>`;
+  };
+  const rkViews = rankIn(m, pm, e, 'all', 'views');
+  const cs = T('subs'), grPrev = pm ? cmp(pm, ppm, all, 'subs').diff : null;
+  const hasReach = e.platforms.some(p => p === 'ВК' || p === 'ОК');
+  const tiles = tile('views', rkViews ? `<div class="n">${rkViews.r} из ${rkViews.of} ${BLOCK_GEN[e.block]}</div>` : '') +
+    (hasReach ? tile('reach') : `<div class="ctile"><div class="k">Охваты ВК + ОК</div><div class="v">н/д</div><div class="n">нет ВК и ОК</div></div>`) +
+    tile('posts') + tile('yield') + tile('er') +
+    tile('subs', `<div class="n" data-g>прирост за месяц: ${cs.diff == null ? 'н/д' : sign(cs.diff, fInt)}${grPrev != null ? ` · было ${sign(grPrev, fInt)}` : ''}</div>`);
+
+  // 2. по площадкам — то же, что таблица «Редакции» с фильтром площадки
+  const td = (k, p) => {
+    if (k === 'reach' && (p === 'ТГ' || p === 'МАКС')) return '<td>н/д</td>';
+    const c = cmp(m, pm, [[name, p]], k);
+    const rk = rankIn(m, pm, e, p, k);
+    if (c.cur != null && pm && c.diff == null) notes.push(`${p}, ${MLABEL[k].toLowerCase()}: нет цифры за ${pm.label.toLowerCase()} — рост не считается.`);
+    const dd = k === 'posts' ? (c.diff == null ? 'н/д' : `${sign(c.diff, fInt)} · ${fPct(c.pct)}`) : dTxt(k, c);
+    return `<td data-c="${k}|${p}"><span data-v>${fMetric(k, c.cur)}</span>${c.cur == null ? '' : `<small class="${dCls(k, c)}" data-d>${dd}</small>`}${rk ? `<small class="pl">место ${rk.r} из ${rk.of}</small>` : ''}</td>`;
+  };
+  const rows = PL.map(p => {
+    const dot = `<span class="dot" style="--c:${PCOL[p]};margin-right:6px"></span>${p}`;
+    if (!e.platforms.includes(p)) return `<tr><td>${dot}</td><td colspan="7" class="none">нет площадки</td></tr>`;
+    const c = cell(m, name, p);
+    if (!c || !['views', 'reach', 'subs', 'posts', 'likes'].some(k => c[k] != null)) { notes.push(`${p}: нет данных за ${m.label.toLowerCase()}.`); return `<tr><td>${dot}</td><td colspan="7" class="none">нет данных за месяц</td></tr>`; }
+    const g = cmp(m, pm, [[name, p]], 'subs'), gp = pm ? cmp(pm, ppm, [[name, p]], 'subs').diff : null, rg = rankIn(m, pm, e, p, 'subs', true);
+    return `<tr><td>${dot}</td>${td('views', p)}${td('reach', p)}${td('posts', p)}${td('yield', p)}${td('er', p)}${td('subs', p)}
+      <td data-c="growth|${p}"><span data-v>${g.diff == null ? 'н/д' : sign(g.diff, fInt)}</span>${gp != null ? `<small class="pl">было ${sign(gp, fInt)}</small>` : ''}${rg ? `<small class="pl">место ${rg.r} из ${rg.of}</small>` : ''}</td></tr>`;
+  }).join('');
+
+  // 3. почему изменились просмотры — та же логика, что в блоке «Лучшие и худшие»
+  const okBoth = p => { const a = cell(m, name, p), b = cell(pm, name, p); return a && b && a.posts && b.posts && a.views != null && b.views != null; };
+  const both = pm ? all.filter(([, p]) => okBoth(p)) : [];
+  const dec = (pairs, viewsCmp) => {
+    const po = pairs.length ? agg(m, pairs, 'posts') : null, pop = pairs.length ? agg(pm, pairs, 'posts') : null;
+    const y = pairs.length ? agg(m, pairs, 'yield') : null, yp = pairs.length ? agg(pm, pairs, 'yield') : null;
+    return {v: viewsCmp, vol: pct(po, pop), yld: pct(y, yp)};
+  };
+  const decRows = e.platforms.map(p => {
+    const r = dec(pm && okBoth(p) ? [[name, p]] : [], cmp(m, pm, [[name, p]], 'views'));
+    return `<tr><td><span class="dot" style="--c:${PCOL[p]};margin-right:6px"></span>${p}</td><td class="${cls(r.v.pct)}">${fPct(r.v.pct)}</td><td class="${cls(r.vol)}">${fPct(r.vol)}</td><td class="${cls(r.yld)}">${fPct(r.yld)}</td></tr>`;
+  }).join('');
+  const tot = dec(both, T('views'));
+  const decTotal = `<tr class="total"><td>Все площадки${both.length && both.length < e.platforms.length ? ` <small class="pl" style="display:inline;font-weight:500">выпуск и отдача по ${both.map(x => x[1]).join(', ')}</small>` : ''}</td><td class="${cls(tot.v.pct)}" data-total>${fPct(tot.v.pct)}${star(tot.v)}</td><td class="${cls(tot.vol)}">${fPct(tot.vol)}</td><td class="${cls(tot.yld)}">${fPct(tot.yld)}</td></tr>`;
+
+  // 4. доля площадок в просмотрах редакции
+  const vs = e.platforms.map(p => ({p, v: cell(m, name, p) ? cell(m, name, p).views : null})).filter(x => x.v);
+  const vt = vs.reduce((s, x) => s + x.v, 0);
+  const share = vt ? `<div class="share">${vs.map(x => `<i style="--c:${PCOL[x.p]};width:${x.v / vt * 100}%" data-tip="${x.p}<br>${fInt(x.v)} · ${fDec(x.v / vt * 100, 1)}%"></i>`).join('')}</div>
+    <div class="share-l">${vs.map(x => `<span><span class="dot" style="--c:${PCOL[x.p]}"></span>${x.p} ${fDec(x.v / vt * 100, 1)}%</span>`).join('')}</div>` : '<div class="empty">нет просмотров за месяц</div>';
+
+  // 6. пометки: ✱ и «н/д» из тех же расчётов, плюс пометки сборки по этой редакции (если они есть в данных)
+  if (!pm) notes.unshift('Прошлого месяца нет в данных — рост не считается.');
+  (D.notes || []).filter(n => (n.month === '*' || n.month === m.month) && n.editorial === name).forEach(n => notes.push(`${n.platform === '*' ? '' : n.platform + ': '}${n.text}`));
+
+  const root = document.getElementById('drawerRoot');
+  const oldDr = root.querySelector('.drawer'), keepTop = refresh && oldDr ? oldDr.scrollTop : 0;
+  root.innerHTML =`<div class="back" id="cardBack"></div>
+    <aside class="drawer" role="dialog" aria-modal="true" aria-label="Карточка редакции ${esc(name)}">
+      <div class="dh"><div><h2>${esc(name)}</h2><small>${BLOCK1[e.block]} · ${pm ? 'сравнение с прошлым месяцем (' + esc(pm.label.toLowerCase()) + ')' : 'прошлого месяца нет, рост не считается'}</small>
+        <div class="cmn"><button type="button" id="cPrev" title="Предыдущий месяц"${st.mi > 0 ? '' : ' disabled'}>‹</button><span>${esc(m.label)}</span><button type="button" id="cNext" title="Следующий месяц"${st.mi < D.months.length - 1 ? '' : ' disabled'}>›</button></div></div><button type="button" id="cardClose">Закрыть ✕</button></div>
+      <div class="body">
+        <div class="panel"><h3>Итог по всем площадкам</h3><div class="ctiles" id="cTiles">${tiles}</div></div>
+        <div class="panel"><h3>По площадкам</h3><div class="sub">под значением — изменение к прошлому месяцу и место среди ${BLOCK_GEN[e.block]} на этой площадке</div>
+          <div class="mx-wrap"><table id="cPlat"><thead><tr><th>Площадка</th><th>Просмотры</th><th>Охваты</th><th>Посты</th><th>Отдача</th><th>ER</th><th>Подписчики</th><th>Прирост</th></tr></thead><tbody>${rows}</tbody></table></div></div>
+        <div class="panel"><h3>Почему изменились просмотры</h3><div class="sub">выпуск и отдача — только где посты есть в обоих месяцах</div>
+          <div class="mx-wrap"><table id="cDec"><thead><tr><th>Площадка</th><th>Просмотры</th><th>Выпуск (посты)</th><th>Отдача</th></tr></thead><tbody>${decRows}${decTotal}</tbody></table></div></div>
+        <div class="panel"><h3>Доля площадок в просмотрах</h3>${share}</div>
+        <div class="panel"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px"><h3 style="margin:0">Динамика по месяцам</h3><div class="seg" id="cardSeg">${CARD_METRICS.map(([k, t]) => `<button type="button" data-v="${k}">${t}</button>`).join('')}</div></div>
+          <div class="sub">у каждой площадки своя шкала, текущий месяц выделен</div><div class="cm" id="cCharts"></div></div>
+        <div class="panel"><h3>Пометки по редакции</h3>${notes.length ? `<ul class="cnotes">${[...new Set(notes)].map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : '<div class="empty">пометок нет</div>'}</div>
+      </div>
+    </aside>`;
+  const drawCharts = () => {
+    const k = st.cardMetric, labels = D.months.map(x => x.label.split(' ')[0].slice(0, 3).toLowerCase());
+    const box = document.getElementById('cCharts');
+    box.innerHTML = e.platforms.map(p => {
+      const vals = D.months.map(mm => agg(mm, [[name, p]], k));
+      return `<div><h4><span class="dot" style="--c:${PCOL[p]}"></span>${p}<span class="now">${fMetric(k, vals[st.mi])}</span></h4>${miniChart(vals, labels, st.mi, PCOL[p], k, `${name}, ${p}: ${CARD_METRICS.find(x => x[0] === k)[1]}`)}</div>`;
+    }).join('');
+    bindTip(box);
+    root.querySelectorAll('#cardSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === k));
+  };
+  drawCharts();
+  root.querySelectorAll('#cardSeg button').forEach(b => b.onclick = () => { st.cardMetric = b.dataset.v; drawCharts(); });
+  bindTip(root.querySelector('.body'));
+  document.getElementById('cardBack').onclick = closeCard;
+  document.getElementById('cardClose').onclick = closeCard;
+  // переключение месяца прямо из карточки: страница и карточка пересчитываются вместе
+  document.getElementById('cPrev').onclick = () => { if (st.mi > 0) { st.mi--; render(); document.getElementById('cPrev').focus(); } };
+  document.getElementById('cNext').onclick = () => { if (st.mi < D.months.length - 1) { st.mi++; render(); document.getElementById('cNext').focus(); } };
+  if (keepTop) root.querySelector('.drawer').scrollTop = keepTop;
+  if (!refresh) document.getElementById('cardClose').focus();
+  writeHash();
+}
+function closeCard() {
+  st.card = null;
+  document.getElementById('drawerRoot').innerHTML = '';
+  tip.style.display = 'none';
+  writeHash();
+}
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && st.card) closeCard(); });
+function writeHash() {
+  if (!D) return;
+  const h = '#' + D.months[st.mi].month + (st.card ? '&card=' + encodeURIComponent(st.card) : '');
+  if (location.hash !== h) history.replaceState(null, '', h);
+}
+function bindNames(root) {
+  root.querySelectorAll('.nmb').forEach(b => b.onclick = () => { tip.style.display = 'none'; openCard(b.dataset.name); });
+}
+const nameBtn = n => `<button type="button" class="nmb" data-name="${esc(n)}">${esc(n)}</button>`;
 
 /* ---------- управление ---------- */
 function seg(id, opts, get, set) {
@@ -477,9 +696,30 @@ function seg(id, opts, get, set) {
 function init() {
   const sel = document.getElementById('month');
   sel.innerHTML = D.months.map((m, i) => `<option value="${i}">${esc(m.label)}</option>`).join('');
-  const h = location.hash.slice(1);
-  const hi = D.months.findIndex(m => m.month === h);
-  st.mi = hi >= 0 ? hi : D.months.length - 1;
+  // ссылка вида #2026-09&card=Пуровский
+  const readHash = () => {
+    const hp = location.hash.slice(1).split('&');
+    const hi = D.months.findIndex(m => m.month === hp[0]);
+    st.mi = hi >= 0 ? hi : D.months.length - 1;
+    const hc = hp.find(x => x.startsWith('card='));
+    let n = null; try { n = hc ? decodeURIComponent(hc.slice(5)) : null; } catch (e) {}
+    st.card = n && D.editorials.some(e => e.name === n) ? n : null;
+    if (!st.card) document.getElementById('drawerRoot').innerHTML = '';
+  };
+  readHash();
+  window.addEventListener('hashchange', () => { readHash(); render(); });
+  // поиск редакции
+  const q = document.getElementById('q');
+  document.getElementById('edNames').innerHTML = D.editorials.map(e => e.name).sort((a, b) => a.localeCompare(b, 'ru')).map(n => `<option value="${esc(n)}">`).join('');
+  q.addEventListener('input', () => { const v = q.value.trim().toLowerCase(); const ex = D.editorials.find(e => e.name.toLowerCase() === v); if (ex) openCard(ex.name); });
+  const findEd = () => {
+    const v = q.value.trim().toLowerCase(); if (!v) return;
+    const hit = D.editorials.find(e => e.name.toLowerCase() === v) || D.editorials.find(e => e.name.toLowerCase().includes(v));
+    if (hit && st.card !== hit.name) openCard(hit.name);
+  };
+  q.addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); findEd(); } });
+  q.addEventListener('keyup', ev => { if (ev.key === 'Enter') findEd(); });
+  q.addEventListener('change', findEd);
   sel.onchange = () => { st.mi = +sel.value; render(); };
   document.getElementById('prevM').onclick = () => { if (st.mi > 0) { st.mi--; render(); } };
   document.getElementById('nextM').onclick = () => { if (st.mi < D.months.length - 1) { st.mi++; render(); } };
