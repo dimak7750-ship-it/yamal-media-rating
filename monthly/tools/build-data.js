@@ -10,6 +10,8 @@
      «ручные…csv»                      — то, чего нет в файлах (база июля и т. п.); заполняет только пустые клетки
    Если в файле нет нужных колонок, сборка падает, и на сайте остаются прежние данные. */
 'use strict';
+// Excel dates belong to the Moscow reporting calendar on every build host.
+process.env.TZ = 'Europe/Moscow';
 const fs = require('fs');
 const path = require('path');
 const XLSX = require('../../lib/xlsx.full.min.js');
