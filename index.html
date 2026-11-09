@@ -424,11 +424,11 @@ const sumsComparable = () => !S.prev || (S.cur.nWeeks || 1) === (S.prev.nWeeks |
 const key = (p, n) => p + '|' + n;
 const included = x => !S.excluded.has(key(x.platform, x.name));
 function agg(items){
-  const a = {n:items.length, views:0, likes:0, subs:0, growth:0, pubs:0, nViews:0, nGrowth:0, erL:0, erS:0, vV:0, vP:0};
+  const a = {n:items.length, views:0, likes:0, subs:0, growth:0, pubs:0, nViews:0, nSubs:0, nGrowth:0, erL:0, erS:0, vV:0, vP:0};
   for(const x of items){
     if(x.views != null){ a.views += x.views; a.nViews++; }
     if(x.likes != null) a.likes += x.likes;
-    if(x.subs != null) a.subs += x.subs;
+    if(x.subs != null){ a.subs += x.subs; a.nSubs++; }
     if(x.pubs != null) a.pubs += x.pubs;
     if(x.growth != null){ a.growth += x.growth; a.nGrowth++; }
     if(x.likes != null && x.subs){ a.erL += x.likes; a.erS += x.subs * (x.days || 7); }
@@ -437,6 +437,7 @@ function agg(items){
   a.er = a.erS ? a.erL / a.erS * 100 : null;
   a.vpp = a.vP ? a.vV / a.vP : null;
   if(!a.nViews) a.views = null;
+  if(!a.nSubs) a.subs = null;
   if(!a.nGrowth) a.growth = null;
   return a;
 }
@@ -772,6 +773,9 @@ function renderKpis(){
   const tiles = [{label:'Холдинг', p:null}].concat(PLATFORMS.map(p => ({label:p.label, p})));
   $('kpis').innerHTML = tiles.map(t => {
     const s = summary(t.p ? t.p.key : null, m);
+    const coverage = n => n > 0 && n < s.n ? ` по ${n} из ${s.n}` : '';
+    const audience = s.A.nSubs ? `${nf0.format(s.A.subs)} подписч.${coverage(s.A.nSubs)}` : 'подписчики н/д';
+    const metricCoverage = m.key === 'subs' ? coverage(s.A.nSubs) : m.key === 'growth' ? coverage(s.A.nGrowth) : '';
     let share = '';
     if(!t.p && SHARE_WORD[m.key] && s.value){
       const parts = PLATFORMS.map(p => ({p, v: agg(itemsOf(S.cur, p.key))[m.key] || 0}));
@@ -781,7 +785,7 @@ function renderKpis(){
     return `<div class="kpi${t.p ? '' : ' total'}" ${t.p ? `style="--c:${color(t.p)}"` : ''}>
       <div class="kpi-h">${t.p ? '<span class="dot"></span>' : ''}${esc(t.label)}</div>
       ${s.n ? `<div class="hero"><span class="v">${s.value == null ? '—' : fmtValue(m, s.value)}</span>${dHtml(m, s.delta)}</div>
-      <div class="kpi-sub">${esc(m.hero)} · ${s.n} паблик${plural(s.n)}${m.key === 'subs' ? '' : ` · ${s.A.subs ? nf0.format(s.A.subs) : '—'} подписч.`}</div>${share}`
+      <div class="kpi-sub">${esc(m.hero)}${metricCoverage} · ${s.n} паблик${plural(s.n)}${m.key === 'subs' ? '' : ` · ${audience}`}</div>${share}`
       : '<div class="kpi-sub" style="margin-top:8px">нет данных за период</div>'}
     </div>`;
   }).join('');
