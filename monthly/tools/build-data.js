@@ -148,6 +148,11 @@ for (const mk of monthDirs) {
   }
   const reachFilled = [];
   const cells = {};
+  const subsSnapshots = {};
+  let hasManualSnapshot = false;
+  const recordSnapshot = (date, platform) => {
+    if (date) (subsSnapshots[date] ||= new Set()).add(platform);
+  };
   const missStat = [], missSubs = [], missPosts = {ВК: [], ТГ: [], ОК: [], МАКС: []};
   for (const r of resources) {
     const c = {views: null, reach: null, subs: null, posts: null, likes: null, src: {}};
@@ -159,7 +164,10 @@ for (const mk of monthDirs) {
     if (weekly.data) {
       const w = weekly.data[r.platform];
       const k = r.weekly.find(a => a in w);
-      if (k != null && w[k] != null) { c.subs = w[k]; c.src.subs = 'съём'; }
+      if (k != null && w[k] != null) {
+        c.subs = w[k]; c.src.subs = 'съём';
+        recordSnapshot(weekly.snapshot, r.platform);
+      }
       else missSubs.push(`${r.platform} ${r.editorial}`);
     }
     if (barkov[r.platform]) {
@@ -176,6 +184,10 @@ for (const mk of monthDirs) {
     for (const m of manual) {
       if (m.platform === r.platform && L.norm(m.editorial) === L.norm(r.editorial) && c[m.metric] == null) {
         c[m.metric] = m.value; c.src[m.metric] = 'ручные: ' + m.source;
+        if (m.metric === 'subs' && m.snapshot) {
+          recordSnapshot(m.snapshot, r.platform);
+          hasManualSnapshot = true;
+        }
       }
     }
     if ((r.platform === 'ВК' || r.platform === 'ОК') && c.reach == null && statNext && r.stat) {
@@ -200,6 +212,10 @@ for (const mk of monthDirs) {
       .concat(roles.popster.length ? [`Popster: ${roles.popster.length} файлов`] : [])
       .concat(roles.okadmin.length ? [`админка ОК: ${roles.okadmin.length} файлов`] : []),
     subsSnapshot: weekly.snapshot || null, weekSheet: weekly.sheet || null,
+    ...(hasManualSnapshot && {subsSnapshots: Object.fromEntries(
+      Object.entries(subsSnapshots).sort(([a], [b]) => a.localeCompare(b))
+        .map(([date, platforms]) => [date, L.PLATFORMS.filter(p => platforms.has(p))])
+    )}),
     warnings: warns, cells
   });
   console.log(`${mk}: файлов ${files.length}, предупреждений ${warns.length}`);

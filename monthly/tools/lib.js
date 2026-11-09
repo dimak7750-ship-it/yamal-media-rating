@@ -305,7 +305,12 @@ function parseManual(text, fileName) {
     const metric = METRIC_ALIASES[norm(r['Метрика'])];
     const value = num(r['Значение']);
     if (!platform || !metric || value == null) { warns.push(`${fileName}: строка пропущена (${r['Площадка']} / ${r['Редакция']} / ${r['Метрика']} / ${r['Значение']}).`); continue; }
-    items.push({platform, editorial: r['Редакция'], metric, value, source: r['Источник']});
+    const snapshot = r['Дата среза'] || null;
+    if (snapshot && !/^\d{4}-\d{2}-\d{2}$/.test(snapshot)) {
+      errors.push(`${fileName}: дата среза «${snapshot}» должна быть в формате ГГГГ-ММ-ДД.`);
+      continue;
+    }
+    items.push({platform, editorial: r['Редакция'], metric, value, source: r['Источник'], snapshot});
   }
   return {errors, warns, items};
 }

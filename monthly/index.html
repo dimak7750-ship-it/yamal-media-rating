@@ -232,7 +232,7 @@ const SCOPES = ['Весь холдинг', ...BLOCKS];
 const METRICS = [
   {k: 'views', name: 'Просмотры'},
   {k: 'reach', name: 'Охваты (ВК, ОК)'},
-  {k: 'subs', name: 'Подписчики на конец месяца'},
+  {k: 'subs', name: 'Подписчики'},
   {k: 'posts', name: 'Посты'},
   {k: 'yield', name: 'Отдача поста (просмотры ÷ посты)'},
   {k: 'er', name: 'ER, % (лайки ÷ подписчики ÷ дни)'}
@@ -329,9 +329,13 @@ function bindTip(root) {
 function render() {
   const m = D.months[st.mi], pm = prevOf(st.mi);
   document.getElementById('month').value = st.mi;
-  const snap = m.subsSnapshot ? m.subsSnapshot.split('-').reverse().join('.') : 'н/д';
+  const fmtDate = date => date.split('-').reverse().join('.');
+  const snap = m.subsSnapshots
+    ? 'подписчики: ' + Object.entries(m.subsSnapshots)
+        .map(([date, platforms]) => `${platforms.join(' и ')} на ${fmtDate(date)}`).join(', ')
+    : 'подписчики на ' + (m.subsSnapshot ? fmtDate(m.subsSnapshot) : 'н/д');
   document.getElementById('meta').innerHTML =
-    `${esc(m.label)} · прошлый месяц для сравнения: ${pm ? esc(pm.label.toLowerCase()) : '— (прошлого месяца нет в данных)'} · подписчики на ${snap} · обновлено ${new Date(D.updated).toLocaleDateString('ru-RU')}`;
+    `${esc(m.label)} · прошлый месяц для сравнения: ${pm ? esc(pm.label.toLowerCase()) : '— (прошлого месяца нет в данных)'} · ${esc(snap)} · обновлено ${new Date(D.updated).toLocaleDateString('ru-RU')}`;
   renderTiles(m, pm); renderPlatforms(m, pm); renderTable(m, pm); renderBW(m, pm);
   bindNames(document.querySelector('.wrap'));
   if (st.card) openCard(st.card, true); else writeHash();
