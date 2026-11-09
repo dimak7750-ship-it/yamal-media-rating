@@ -74,7 +74,9 @@
           if (Math.abs(sum - t[k]) > 0.5) warns.push(`Лист «${name}», ${p}: сумма «${METRIC_RU[k]}» по строкам (${fmt(sum)}) не совпадает с итогом (${fmt(t[k])}).`);
         }
       }
-      weeks.push({sheet: name, title: String(title || name), start: period.start, end: period.end, items, empty});
+      const audienceNote = String(ws.Q6?.v ?? '').match(/^Срез подписчиков · (.+)$/)?.[1];
+      weeks.push({sheet: name, title: String(title || name), start: period.start, end: period.end, items, empty,
+        ...(audienceNote && {audienceNote})});
     }
     weeks.sort((a, b) => a.end - b.end);
 

@@ -270,6 +270,7 @@ footer{color:var(--muted);font-size:12.5px;margin-top:26px;line-height:1.6}
 
     <div class="tabsrow"><div class="tabs" role="tablist" id="tabs"></div></div>
     <section class="kpis" id="kpis" aria-label="Итоги"></section>
+    <p class="kpi-sub" id="audienceNote" hidden></p>
 
     <div class="sec-h"><h2 id="rankTitle">Рейтинг</h2><span id="rankSub"></span>
       <span class="spacer"></span>
@@ -376,7 +377,8 @@ function fmtTick(metric, v){
 }
 function dir(v, digits){ if(v == null) return 'flat'; const r = +v.toFixed(digits); return r > 0 ? 'up' : r < 0 ? 'down' : 'flat'; }
 function plural(n){ const a = n % 10, b = n % 100; return (a === 1 && b !== 11) ? '' : (a >= 2 && a <= 4 && (b < 12 || b > 14)) ? 'а' : 'ов'; }
-const unitOf = m => S.period === 'week' ? m.unit : m.unit.replace('за неделю', 'за ' + (S.period === 'month' ? 'месяц' : 'квартал')).replace('конец недели', 'конец ' + (S.period === 'month' ? 'месяца' : 'квартала'));
+const unitOf = m => m.key === 'subs' && S.cur?.audienceNote ? 'подписчиков на дату среза'
+  : S.period === 'week' ? m.unit : m.unit.replace('за неделю', 'за ' + (S.period === 'month' ? 'месяц' : 'квартал')).replace('конец недели', 'конец ' + (S.period === 'month' ? 'месяца' : 'квартала'));
 const perWord = () => S.period === 'week' ? 'неделе' : S.period === 'month' ? 'месяцу' : 'кварталу';
 
 // ---------- данные и периоды ----------
@@ -578,7 +580,7 @@ function draw(canvas, spec){
     er: wk ? 'ER — лайки за неделю ÷ подписчики ÷ 7 × 100%: доля подписчиков, ставящих лайк за день.' : 'ER — лайки за период ÷ подписчики ÷ число дней × 100%: доля подписчиков, ставящих лайк за день.',
     views: wk ? 'Просмотры публикаций недели. Δ — изменение к прошлой неделе.' : `Просмотры публикаций за период. Δ — изменение к прошлому ${S.period === 'month' ? 'месяцу' : 'кварталу'}.`,
     vpp: wk ? 'Просмотры на пост — просмотры недели ÷ число публикаций. Δ — изменение к прошлой неделе.' : `Просмотры на пост — просмотры за период ÷ число публикаций. Δ — изменение к прошлому ${S.period === 'month' ? 'месяцу' : 'кварталу'}.`,
-    subs: wk ? 'Подписчики на конец недели. Δ — изменение к прошлой неделе.' : `Подписчики на конец периода. Δ — изменение к прошлому ${S.period === 'month' ? 'месяцу' : 'кварталу'}.`,
+    subs: wk ? 'Подписчики на дату среза. Δ — изменение между срезами.' : `Подписчики на конец периода. Δ — изменение к прошлому ${S.period === 'month' ? 'месяцу' : 'кварталу'}.`,
     growth: wk ? 'Прирост числа подписчиков за неделю. «было» — прирост прошлой недели.' : 'Прирост числа подписчиков за период. «было» — прирост прошлого периода.',
   };
   g.fillText(notes[metric.key], L.padX, fy);
@@ -770,6 +772,11 @@ function renderTabs(){
 const SHARE_WORD = {views:'просмотрах', subs:'подписчиках'};
 function renderKpis(){
   const m = metricOf(S.metric);
+  const notes = [];
+  if (S.cur.audienceNote) notes.push('Срез подписчиков · ' + S.cur.audienceNote);
+  if ((m.key === 'subs' || m.key === 'growth') && S.prev?.audienceNote) notes.push('Срез для сравнения · ' + S.prev.audienceNote);
+  $('audienceNote').textContent = notes.join(' ');
+  $('audienceNote').hidden = !notes.length;
   const tiles = [{label:'Холдинг', p:null}].concat(PLATFORMS.map(p => ({label:p.label, p})));
   $('kpis').innerHTML = tiles.map(t => {
     const s = summary(t.p ? t.p.key : null, m);
